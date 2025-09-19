@@ -17,7 +17,7 @@ export default function Code({ url }: CodeProps) {
   }, [url]);
 
   return (
-    <pre className="border border-neutral-800 border-dashed bg-white/5 w-fit mt-4 mb-2 px-4 py-3 overflow-x-auto max-w-full">
+    <pre className="border border-neutral-800 border-dashed bg-white/5 w-fit mt-4 mb-2 px-4 py-3 overflow-x-auto max-w-full min-w-xs">
       <code className="font !text-xs">
         {data}
       </code>
