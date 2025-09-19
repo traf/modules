@@ -23,7 +23,7 @@ async function fetchCryptoPrice(symbol: string) {
     }
     
     const searchData = await searchResponse.json();
-    const coin = searchData.coins?.find((c: any) => 
+    const coin = searchData.coins?.find((c: { symbol?: string; id: string; name: string }) => 
       c.symbol?.toLowerCase() === symbol.toLowerCase()
     );
     
@@ -138,7 +138,7 @@ export async function GET(
     let result;
     try {
       result = await fetchCryptoPrice(symbol);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { 
           error: 'Cryptocurrency not found',

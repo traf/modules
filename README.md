@@ -10,8 +10,11 @@ Simple API endpoints
 
 ```json
 {
+  "ens": "traf.eth",
   "address": "0x881475210E75b814D5b711090a064942b6f30605",
-  "name": "traf.eth"
+  "avatar": "https://rainbow.mypinata.cloud/ipfs/QmSnp3BLNNC3oFR5XLaoY42KnZ5J4QzUcCvwZfENTbNq25",
+  "url": "https://tr.af",
+  "twitter": "traf"
 }
 ```
 
@@ -27,8 +30,8 @@ Simple API endpoints
 
 ```json
 {
+  "name": "Hyperliquid",
   "symbol": "HYPE",
-  "price": 12.34,
-  "change24h": 5.67
+  "price": 69.42,
 }
 ```

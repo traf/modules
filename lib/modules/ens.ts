@@ -123,6 +123,7 @@ class ENSService {
         const profile = await this.getENSProfile(ensName);
         if (profile) {
           // Remove the address from response since they searched by address
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { address, ...profileWithoutAddress } = profile;
           return profileWithoutAddress;
         }
@@ -136,6 +137,7 @@ class ENSService {
       const profile = await this.getENSProfile(normalizedName);
       if (profile) {
         // Remove the ENS name from response since they searched by ENS
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ens, ...profileWithoutEns } = profile;
         return profileWithoutEns;
       }
