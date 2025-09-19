@@ -12,16 +12,15 @@ export const moduleConfigs: Record<string, ModuleConfig> = {
       enabled: true
     }
   },
-  // Future modules:
-  // price: {
-  //   name: 'price',
-  //   rateLimit: {
-  //     windowMs: 60 * 1000,
-  //     maxRequests: 100
-  //   },
-  //   cache: {
-  //     ttl: 30, // 30 seconds - prices change frequently
-  //     enabled: true
-  //   }
-  // }
+  price: {
+    name: 'price',
+    rateLimit: {
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 100 // 100 requests per minute
+    },
+    cache: {
+      ttl: 10, // 10 seconds - fast crypto price updates
+      enabled: true
+    }
+  }
 };
