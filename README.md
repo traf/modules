@@ -6,8 +6,6 @@ Simple API endpoints
 - [modul.es/ens/traf.eth](https://modul.es/ens/traf.eth)
 - [modul.es/ens/0x881475210E75b814D5b711090a064942b6f30605](https://modul.es/ens/0x881475210E75b814D5b711090a064942b6f30605)
 
-60 requests/min | 5m cache
-
 ```json
 {
   "ens": "traf.eth",
@@ -17,6 +15,7 @@ Simple API endpoints
   "twitter": "traf"
 }
 ```
+60 requests/min | 5m cache
 
 ---
 
@@ -26,8 +25,6 @@ Simple API endpoints
 - [modul.es/price/eth](https://modul.es/price/eth)
 - [modul.es/price/hype](https://modul.es/price/hype)
 
-100 requests/min | 10s cache
-
 ```json
 {
   "name": "Hyperliquid",
@@ -35,3 +32,5 @@ Simple API endpoints
   "price": 69.42,
 }
 ```
+100 requests/min | 10s cache
+

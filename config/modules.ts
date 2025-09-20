@@ -19,7 +19,7 @@ export const moduleConfigs: Record<string, ModuleConfig> = {
       maxRequests: 100 // 100 requests per minute
     },
     cache: {
-      ttl: 10, // 10 seconds - fast crypto price updates
+      ttl: 10,
       enabled: true
     }
   }

@@ -3,41 +3,67 @@ import { checkRateLimit } from '../../../lib/shared/rate-limit';
 import { getCache, getCachedValue, setCachedValue } from '../../../lib/shared/cache';
 import { moduleConfigs } from '../../../config/modules';
 
+// Cache for symbol-to-coinID mapping to avoid repeated searches
+const symbolCache = new Map<string, { id: string; name: string; timestamp: number }>();
+const SYMBOL_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
 async function fetchCryptoPrice(symbol: string) {
   try {
     const upperSymbol = symbol.toUpperCase();
+    const lowerSymbol = symbol.toLowerCase();
     
-    // Use CoinGecko API - supports ALL tokens including DEX tokens
-    // First search for the coin by symbol
-    const searchResponse = await fetch(
-      `https://api.coingecko.com/api/v3/search?query=${symbol}`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; PriceBot/1.0)'
+    // Check if we have a cached coin ID for this symbol
+    const cached = symbolCache.get(lowerSymbol);
+    let coinId: string;
+    let coinName: string;
+    
+    if (cached && (Date.now() - cached.timestamp) < SYMBOL_CACHE_TTL) {
+      coinId = cached.id;
+      coinName = cached.name;
+    } else {
+      // Search for the coin by symbol (only when not cached)
+      const searchResponse = await fetch(
+        `https://api.coingecko.com/api/v3/search?query=${symbol}`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; PriceBot/1.0)'
+          },
+          signal: AbortSignal.timeout(5000) // 5 second timeout
         }
+      );
+      
+      if (!searchResponse.ok) {
+        throw new Error('Search API error');
       }
-    );
-    
-    if (!searchResponse.ok) {
-      throw new Error('Search API error');
-    }
-    
-    const searchData = await searchResponse.json();
-    const coin = searchData.coins?.find((c: { symbol?: string; id: string; name: string }) => 
-      c.symbol?.toLowerCase() === symbol.toLowerCase()
-    );
-    
-    if (!coin) {
-      throw new Error('Cryptocurrency not found');
+      
+      const searchData = await searchResponse.json();
+      const coin = searchData.coins?.find((c: { symbol?: string; id: string; name: string }) => 
+        c.symbol?.toLowerCase() === lowerSymbol
+      );
+      
+      if (!coin) {
+        throw new Error('Cryptocurrency not found');
+      }
+      
+      coinId = coin.id;
+      coinName = coin.name;
+      
+      // Cache the symbol-to-ID mapping
+      symbolCache.set(lowerSymbol, { 
+        id: coinId, 
+        name: coinName, 
+        timestamp: Date.now() 
+      });
     }
     
     // Get the price using the coin ID
     const priceResponse = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coin.id}&vs_currencies=usd`,
+      `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; PriceBot/1.0)'
-        }
+        },
+        signal: AbortSignal.timeout(5000) // 5 second timeout
       }
     );
     
@@ -46,16 +72,16 @@ async function fetchCryptoPrice(symbol: string) {
     }
     
     const priceData = await priceResponse.json();
-    const coinPrice = priceData[coin.id];
+    const coinPrice = priceData[coinId];
     
     if (!coinPrice) {
       throw new Error('Price data not available');
     }
     
     return {
-      name: coin.name,
+      name: coinName,
       ticker: upperSymbol,
-      price: coinPrice.usd
+      price: coinPrice.usd < 1 ? coinPrice.usd.toString() : coinPrice.usd.toFixed(2)
     };
   } catch (error) {
     throw new Error(`Failed to fetch crypto price: ${error instanceof Error ? error.message : 'Unknown error'}`);
