@@ -31,9 +31,10 @@ export default function Home() {
 
       <div className="flex flex-col py-8">
         <h2>modules.loading();</h2>
-        <div className="flex flex-col pl-6 mt-6 border-l border-neutral-800 border-dashed">
-          <p>More api modules coming soon.</p>
-          <p>Ping <a href="https://x.com/traf" target="_blank" className="!text-white/75 hover:!text-white">@traf</a> with any ideas.</p>
+        <div className="flex flex-col pl-6 mt-6 border-l border-neutral-800 border-dashed space-y-0.5">
+          <p>↳ More api modules coming soon</p>
+          <p>↳ Ping <a href="https://x.com/traf" target="_blank" className="!text-white/75 hover:!text-white">@traf</a> with any ideas</p>
+          <p>↳ Source code on <a href="https://github.com/traf/modules" target="_blank" className="!text-white/75 hover:!text-white">Github</a></p>
         </div>
       </div>
 
