@@ -4,10 +4,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Skip middleware for static files, Next.js internals, and favicon
+  // BUT allow /icons routes to go through our API
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    pathname.includes('.') ||
+    (pathname.includes('.') && !pathname.startsWith('/icons/')) ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();
