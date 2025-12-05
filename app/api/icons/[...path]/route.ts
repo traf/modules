@@ -176,8 +176,10 @@ export async function GET(
       const resolvedColor = resolveColor(color)
       
       // Smart detection: check what the SVG actually uses
-      const hasFill = /fill="[^"]*"/.test(modifiedSvg) && !/fill="none"/.test(modifiedSvg)
-      const hasStroke = /stroke="[^"]*"/.test(modifiedSvg) && !/stroke="none"/.test(modifiedSvg)
+      // Look for fill attributes that are NOT "none"
+      const hasFill = /fill="(?!none)[^"]*"/.test(modifiedSvg)
+      // Look for stroke attributes that are NOT "none"  
+      const hasStroke = /stroke="(?!none)[^"]*"/.test(modifiedSvg)
       
       if (hasFill) {
         // SVG uses fill - apply color to fill
