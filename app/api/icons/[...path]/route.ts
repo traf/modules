@@ -89,8 +89,21 @@ export async function GET(
     // Apply color modification
     if (color) {
       const resolvedColor = resolveColor(color)
-      // Replace only stroke color
-      modifiedSvg = modifiedSvg.replace(/stroke="[^"]*"/g, `stroke="${resolvedColor}"`)
+      
+      // Smart detection: check what the SVG actually uses
+      const hasFill = /fill="[^"]*"/.test(modifiedSvg) && !/fill="none"/.test(modifiedSvg)
+      const hasStroke = /stroke="[^"]*"/.test(modifiedSvg) && !/stroke="none"/.test(modifiedSvg)
+      
+      if (hasFill) {
+        // SVG uses fill - apply color to fill
+        modifiedSvg = modifiedSvg.replace(/fill="[^"]*"/g, `fill="${resolvedColor}"`)
+      } else if (hasStroke) {
+        // SVG uses stroke - apply color to stroke
+        modifiedSvg = modifiedSvg.replace(/stroke="[^"]*"/g, `stroke="${resolvedColor}"`)
+      }
+    } else {
+      // Default white fills to black for better visibility
+      modifiedSvg = modifiedSvg.replace(/fill="white"/g, 'fill="#000000"')
     }
     
     
