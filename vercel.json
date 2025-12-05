@@ -1,9 +1,8 @@
 {
-  "redirects": [
+  "rewrites": [
     {
-      "source": "/",
-      "destination": "https://modul.es",
-      "permanent": false,
+      "source": "/:set/:icon.svg",
+      "destination": "/api/icons/:set/:icon.svg",
       "has": [
         {
           "type": "host",
@@ -12,10 +11,11 @@
       ]
     }
   ],
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/([^/]+)/([^/]+)\\.svg",
-      "destination": "/api/icons/$1/$2.svg",
+      "source": "/",
+      "destination": "https://modul.es",
+      "permanent": false,
       "has": [
         {
           "type": "host",
