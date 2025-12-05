@@ -101,9 +101,6 @@ export async function GET(
         // SVG uses stroke - apply color to stroke
         modifiedSvg = modifiedSvg.replace(/stroke="[^"]*"/g, `stroke="${resolvedColor}"`)
       }
-    } else {
-      // Default white fills to black for better visibility
-      modifiedSvg = modifiedSvg.replace(/fill="white"/g, 'fill="#000000"')
     }
     
     
