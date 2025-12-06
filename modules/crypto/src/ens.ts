@@ -9,7 +9,6 @@ interface ENSResponse {
   twitter?: string;
 }
 
-// Validation utilities
 function isValidEthereumAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
@@ -34,7 +33,6 @@ function normalizeENSName(name: string): string {
   return normalized;
 }
 
-// Public RPC endpoints - you might want to use your own
 const PROVIDERS = [
   'https://eth.llamarpc.com',
   'https://rpc.ankr.com/eth',
@@ -45,7 +43,6 @@ class ENSService {
   private provider: ethers.JsonRpcProvider;
 
   constructor() {
-    // Use the first provider, can implement fallback logic later
     this.provider = new ethers.JsonRpcProvider(PROVIDERS[0]);
   }
 
@@ -115,15 +112,11 @@ class ENSService {
     const trimmedInput = input.trim();
     
     if (isValidEthereumAddress(trimmedInput)) {
-      // Input is an address, lookup ENS name and profile
       const ensName = await this.lookupENSName(trimmedInput);
       
       if (ensName) {
-        // If we found an ENS name, get full profile but exclude the address (since they provided it)
         const profile = await this.getENSProfile(ensName);
         if (profile) {
-          // Remove the address from response since they searched by address
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { address, ...profileWithoutAddress } = profile;
           return profileWithoutAddress;
         }
@@ -132,12 +125,9 @@ class ENSService {
         return { address: normalizeAddress(trimmedInput) };
       }
     } else if (isValidENSName(trimmedInput) || isValidENSNameWithoutEth(trimmedInput)) {
-      // Input is an ENS name (with or without .eth), get full profile
       const normalizedName = normalizeENSName(trimmedInput);
       const profile = await this.getENSProfile(normalizedName);
       if (profile) {
-        // Remove the ENS name from response since they searched by ENS
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ens, ...profileWithoutEns } = profile;
         return profileWithoutEns;
       }
@@ -149,3 +139,4 @@ class ENSService {
 }
 
 export const ensService = new ENSService();
+export type { ENSResponse };

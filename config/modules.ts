@@ -1,4 +1,4 @@
-import { ModuleConfig } from '../lib/shared/types';
+import { ModuleConfig } from '@modules/shared';
 
 export const moduleConfigs: Record<string, ModuleConfig> = {
   ens: {
@@ -16,10 +16,10 @@ export const moduleConfigs: Record<string, ModuleConfig> = {
     name: 'price',
     rateLimit: {
       windowMs: 60 * 1000, // 1 minute
-      maxRequests: 100 // 100 requests per minute
+      maxRequests: 50 // Reduced from 100 to protect API key
     },
     cache: {
-      ttl: 10,
+      ttl: 30, // Increased cache time to reduce API calls
       enabled: true
     }
   }

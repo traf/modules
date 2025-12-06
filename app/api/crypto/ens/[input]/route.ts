@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ensService } from '@modules/crypto/src/ens';
-import { checkRateLimit } from '@modules/shared/src/rate-limit';
-import { getCache, getCachedValue, setCachedValue } from '@modules/shared/src/cache';
+import { ensService } from '@modules/crypto';
+import { checkRateLimit } from '@modules/shared';
+import { getCache, getCachedValue, setCachedValue } from '@modules/shared';
 import { moduleConfigs } from '@config/modules';
 
 const MODULE_NAME = 'ens';

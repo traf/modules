@@ -4,7 +4,7 @@ export interface RateLimitConfig {
 }
 
 export interface CacheConfig {
-  ttl: number; // seconds
+  ttl: number;
   enabled: boolean;
 }
 

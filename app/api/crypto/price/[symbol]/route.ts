@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit } from '@modules/shared/src/rate-limit';
-import { getCache, getCachedValue, setCachedValue } from '@modules/shared/src/cache';
+import { checkRateLimit } from '@modules/shared';
+import { getCache, getCachedValue, setCachedValue } from '@modules/shared';
 import { moduleConfigs } from '@config/modules';
 
-import { fetchCryptoPrice } from '@modules/crypto/src/price';
+import { fetchCryptoPrice } from '@modules/crypto';
 
 const MODULE_NAME = 'price';
 const config = moduleConfigs[MODULE_NAME];

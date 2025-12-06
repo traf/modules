@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Sidebar from "./components/Sidebar";
+import Nav from "./components/Nav";
 import "./globals.css";
 
 const font = localFont({
@@ -10,12 +12,12 @@ const font = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://modul.es"),
   title: "Modules",
-  description: "Simple API endpoints.",
+  description: "Components && utilities",
   openGraph: {
     type: "website",
     url: "https://modul.es",
     title: "Modules",
-    description: "Simple API endpoints.",
+    description: "Components && utilities",
     images: [
       {
         url: "https://modul.es/og.png",
@@ -36,9 +38,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`h-svh bg-black text-white selection:bg-white/10 selection:text-white uppercase antialiased font ${font.variable}`}>
-        {children}
+    <html lang="en" className="scroll-smooth">
+      <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/10 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
+        <div className="bg-black fixed inset-0 flex items-center justify-center z-50">
+          <img src="/modules.png" alt="Modules" className="w-full pointer-events-none scale-110" />
+        </div>
+        <Nav />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 flex flex-col overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

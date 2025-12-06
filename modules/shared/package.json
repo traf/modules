@@ -1,0 +1,18 @@
+{
+  "name": "@modules/shared",
+  "version": "0.1.0",
+  "description": "Shared utilities for modules",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20"
+  }
+}

@@ -16,7 +16,6 @@ export function checkRateLimit(
   
   const entry = rateLimitStore.get(key);
   
-  // If no entry or window has expired, reset
   if (!entry || now >= entry.resetTime) {
     const newEntry: RateLimitEntry = {
       count: 1,
@@ -31,7 +30,6 @@ export function checkRateLimit(
     };
   }
   
-  // Check if limit exceeded
   if (entry.count >= config.maxRequests) {
     return {
       allowed: false,
@@ -40,7 +38,6 @@ export function checkRateLimit(
     };
   }
   
-  // Increment count
   entry.count++;
   rateLimitStore.set(key, entry);
   
@@ -51,7 +48,6 @@ export function checkRateLimit(
   };
 }
 
-// Clean up expired entries periodically
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of rateLimitStore.entries()) {
@@ -59,4 +55,4 @@ setInterval(() => {
       rateLimitStore.delete(key);
     }
   }
-}, 60000); // Clean every minute
+}, 60000);

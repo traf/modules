@@ -1,0 +1,36 @@
+{
+  "name": "@modules/icons",
+  "version": "0.1.0",
+  "description": "React icon components for the modules design system",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/modules/modules.git",
+    "directory": "modules/icons"
+  },
+  "keywords": ["react", "icons", "components", "modules"],
+  "author": "Modules Team",
+  "license": "MIT"
+}
