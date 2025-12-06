@@ -69,7 +69,7 @@ export default function SectionIcons() {
           ))
         ) : selectedSet && iconSets[selectedSet] ? (
           // Show icons
-          iconSets[selectedSet].map((iconName, index) => (
+          iconSets[selectedSet].map((iconName) => (
             <div key={`${selectedSet}-${iconName}`} className="flex items-center justify-center w-full p-6 aspect-square">
               <Icon 
                 name={iconName}

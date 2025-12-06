@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Image from "next/image";
 import Sidebar from "./components/Sidebar";
 import Nav from "./components/Nav";
 import "./globals.css";
@@ -40,8 +41,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/10 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
-        <div className="bg-black fixed inset-0 flex items-center justify-center z-50">
-          <img src="/modules.png" alt="Modules" className="w-full pointer-events-none scale-110" />
+        <div className="bg-black fixed inset-0 flex items-center justify-center z-50 overflow-hidden">
+          <Image src="/modules.png" alt="Modules" className="w-full pointer-events-none scale-110" />
         </div>
         <Nav />
         <div className="flex flex-1 overflow-hidden">
