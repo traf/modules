@@ -11,9 +11,9 @@ async function getTokenNameFromCoinGecko(symbol: string): Promise<string | null>
     
     if (!response.ok) return null;
     
-    const data = await response.json();
+    const data = await response.json() as { coins?: { symbol?: string; id: string; name: string }[] };
     
-    const coin = (data as any).coins?.find((c: { symbol?: string; id: string; name: string }) => 
+    const coin = data.coins?.find((c: { symbol?: string; id: string; name: string }) => 
       c.symbol?.toLowerCase() === lowerSymbol
     );
     
@@ -43,17 +43,16 @@ export async function fetchCryptoPrice(symbol: string) {
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Alchemy API error ${response.status}:`, errorText);
       throw new Error(`Alchemy API error: ${response.status} - ${errorText}`);
     }
     
-    const data = await response.json();
+    const data = await response.json() as { data?: any[] };
     
-    if (!(data as any).data || (data as any).data.length === 0) {
+    if (!data.data || data.data.length === 0) {
       throw new Error('Token not found');
     }
     
-    const tokenData = (data as any).data[0];
+    const tokenData = data.data[0];
     
     if (tokenData.error) {
       throw new Error(`Token error: ${tokenData.error}`);
@@ -75,7 +74,6 @@ export async function fetchCryptoPrice(symbol: string) {
       price: price < 1 ? price.toString() : price.toFixed(2)
     };
   } catch (error) {
-    console.error('Price fetch error:', error);
     throw new Error(`Failed to fetch crypto price: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

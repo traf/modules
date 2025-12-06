@@ -14,7 +14,10 @@
     "noEmit": false,
     "declaration": true,
     "outDir": "./dist",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@modules/*": ["../*"]
+    }
   },
   "include": [
     "src"

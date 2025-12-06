@@ -1,29 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensService } from '@modules/crypto';
-import { checkRateLimit } from '@modules/shared';
-import { getCache, getCachedValue, setCachedValue } from '@modules/shared';
-import { moduleConfigs } from '@config/modules';
+import { checkRateLimit, getCache, getClientIP } from '@modules/shared';
 
-const MODULE_NAME = 'ens';
-const config = moduleConfigs[MODULE_NAME];
-const cache = getCache(MODULE_NAME, config.cache);
-
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
-  const remoteAddr = request.headers.get('remote-addr');
-  
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-  if (realIP) {
-    return realIP;
-  }
-  if (remoteAddr) {
-    return remoteAddr;
-  }
-  return 'unknown';
-}
+const config = {
+  rateLimit: { windowMs: 60 * 1000, maxRequests: 60 },
+  cache: { ttl: 300, enabled: true }
+};
+const cache = getCache('ens', config.cache);
 
 export async function GET(
   request: NextRequest,
@@ -59,7 +42,7 @@ export async function GET(
   // Check cache first
   const cacheKey = `lookup:${input.toLowerCase()}`;
   if (config.cache.enabled) {
-    const cached = getCachedValue(cache, cacheKey);
+    const cached = cache.get(cacheKey);
     if (cached) {
       return NextResponse.json(
         cached,
@@ -94,7 +77,7 @@ export async function GET(
 
     // Cache the result
     if (config.cache.enabled) {
-      setCachedValue(cache, cacheKey, result);
+      cache.set(cacheKey, result);
     }
 
     return NextResponse.json(
@@ -109,7 +92,6 @@ export async function GET(
       }
     );
   } catch (error) {
-    console.error('ENS lookup error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { 

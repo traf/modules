@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Section id="modules" title="Modules" description="Code && UI component repository">
         <div className="w-full pt-28 pb-40 overflow-x-hidden">
-          <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-110" />
+          <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-110" priority />
         </div>
       </Section>
 

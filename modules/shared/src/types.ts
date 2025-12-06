@@ -7,9 +7,3 @@ export interface CacheConfig {
   ttl: number;
   enabled: boolean;
 }
-
-export interface ModuleConfig {
-  name: string;
-  rateLimit: RateLimitConfig;
-  cache: CacheConfig;
-}

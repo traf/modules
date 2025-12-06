@@ -35,10 +35,11 @@ export default function SectionIcons() {
       <div className="flex border w-full divide-x-2 divide-dashed divide-neutral-800">
         {iconSets[selectedSet as keyof typeof iconSets]?.map((iconName) => (
           <div key={`${selectedSet}-${iconName}`} className="flex items-center justify-center w-full p-6 aspect-square">
-            <Icon 
+            <Icon
               name={iconName}
               set={selectedSet as 'huge' | 'pixelart' | 'phosphor'}
-              color="white"
+              color="blue-400"
+              style="duotone"
               className="w-8"
             />
           </div>

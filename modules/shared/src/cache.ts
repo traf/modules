@@ -12,18 +12,3 @@ export function getCache(module: string, config: CacheConfig): NodeCache {
   }
   return caches.get(module)!;
 }
-
-export function getCachedValue<T>(
-  cache: NodeCache,
-  key: string
-): T | undefined {
-  return cache.get<T>(key);
-}
-
-export function setCachedValue<T>(
-  cache: NodeCache,
-  key: string,
-  value: T
-): void {
-  cache.set(key, value);
-}
