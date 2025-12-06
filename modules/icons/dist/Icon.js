@@ -60,7 +60,7 @@ function Icon(_a) {
     var cacheKey = "".concat(set, "/").concat(iconKey);
     (0, react_1.useEffect)(function () {
         var loadSvg = function () { return __awaiter(_this, void 0, void 0, function () {
-            var params, url, response, svg, err_1;
+            var params, urlWithParams, response, svg, err_1, response, svg, fallbackErr_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -74,36 +74,78 @@ function Icon(_a) {
                         setError(false);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, 7, 8]);
+                        _a.trys.push([1, 8, 15, 16]);
                         params = new URLSearchParams();
                         if (color !== 'currentColor')
                             params.set('color', color);
                         if (stroke)
                             params.set('stroke', stroke);
-                        url = "https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
-                        return [4 /*yield*/, fetch(url)];
+                        urlWithParams = "https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
+                        console.log("Fetching icon: ".concat(urlWithParams));
+                        return [4 /*yield*/, fetch(urlWithParams, {
+                                method: 'GET',
+                                mode: 'cors',
+                                cache: 'force-cache'
+                            })];
                     case 2:
                         response = _a.sent();
-                        if (!response.ok) return [3 /*break*/, 4];
-                        return [4 /*yield*/, response.text()];
+                        if (!(!response.ok && params.toString())) return [3 /*break*/, 4];
+                        console.log("Retrying without params: https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg"));
+                        return [4 /*yield*/, fetch("https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg"), {
+                                method: 'GET',
+                                mode: 'cors',
+                                cache: 'force-cache'
+                            })];
                     case 3:
+                        response = _a.sent();
+                        _a.label = 4;
+                    case 4:
+                        if (!response.ok) return [3 /*break*/, 6];
+                        return [4 /*yield*/, response.text()];
+                    case 5:
                         svg = _a.sent();
                         svgCache.set(cacheKey, svg);
                         setSvgContent(svg);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        setError(true);
-                        _a.label = 5;
-                    case 5: return [3 /*break*/, 8];
+                        return [3 /*break*/, 7];
                     case 6:
+                        console.warn("Icon not found: ".concat(urlWithParams, " (").concat(response.status, ")"));
+                        setError(true);
+                        _a.label = 7;
+                    case 7: return [3 /*break*/, 16];
+                    case 8:
                         err_1 = _a.sent();
+                        if (!(color !== 'currentColor' || stroke)) return [3 /*break*/, 14];
+                        _a.label = 9;
+                    case 9:
+                        _a.trys.push([9, 13, , 14]);
+                        console.log("Fetch failed, retrying without params: https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg"));
+                        return [4 /*yield*/, fetch("https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg"), {
+                                method: 'GET',
+                                mode: 'cors',
+                                cache: 'force-cache'
+                            })];
+                    case 10:
+                        response = _a.sent();
+                        if (!response.ok) return [3 /*break*/, 12];
+                        return [4 /*yield*/, response.text()];
+                    case 11:
+                        svg = _a.sent();
+                        svgCache.set(cacheKey, svg);
+                        setSvgContent(svg);
+                        return [2 /*return*/];
+                    case 12: return [3 /*break*/, 14];
+                    case 13:
+                        fallbackErr_1 = _a.sent();
+                        console.error("Fallback also failed for ".concat(cacheKey, ":"), fallbackErr_1);
+                        return [3 /*break*/, 14];
+                    case 14:
                         console.error("Error loading icon ".concat(cacheKey, ":"), err_1);
                         setError(true);
-                        return [3 /*break*/, 8];
-                    case 7:
+                        return [3 /*break*/, 16];
+                    case 15:
                         setLoading(false);
                         return [7 /*endfinally*/];
-                    case 8: return [2 /*return*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         }); };
@@ -116,15 +158,15 @@ function Icon(_a) {
         // Remove XML declaration and comments for smaller size
         svg = svg.replace(/<\?xml[^>]*\?>/g, '');
         svg = svg.replace(/<!--[\s\S]*?-->/g, '');
-        // Size handling
+        // Size handling - only target SVG element attributes to avoid stroke-width corruption
         if (size) {
-            svg = svg.replace(/width="[^"]*"/g, "width=\"".concat(size, "\""));
-            svg = svg.replace(/height="[^"]*"/g, "height=\"".concat(size, "\""));
+            svg = svg.replace(/<svg([^>]*)\swidth="[^"]*"([^>]*)>/i, "<svg$1 width=\"".concat(size, "\"$2>"));
+            svg = svg.replace(/<svg([^>]*)\sheight="[^"]*"([^>]*)>/i, "<svg$1 height=\"".concat(size, "\"$2>"));
         }
         else {
-            // Remove fixed dimensions for responsive sizing
-            svg = svg.replace(/\s*width="[^"]*"/g, '');
-            svg = svg.replace(/\s*height="[^"]*"/g, '');
+            // Remove fixed dimensions for responsive sizing - only from SVG element
+            svg = svg.replace(/<svg([^>]*)\swidth="[^"]*"([^>]*)>/i, '<svg$1$2>');
+            svg = svg.replace(/<svg([^>]*)\sheight="[^"]*"([^>]*)>/i, '<svg$1$2>');
         }
         // Add className and ensure currentColor works
         svg = svg.replace(/<svg([^>]*)>/i, function (match, attrs) {
@@ -133,16 +175,35 @@ function Icon(_a) {
             if (!newAttrs.includes('class=')) {
                 newAttrs += " class=\"".concat(className, "\"");
             }
-            // Ensure fill/stroke use currentColor if not specified
-            if (!newAttrs.includes('fill=')) {
-                newAttrs += " fill=\"currentColor\"";
+            // Handle different icon types differently
+            if (set === 'phosphor') {
+                // Phosphor icons already have proper stroke setup, don't modify fill/stroke
+                // They come with stroke="currentColor" and proper stroke-width
+            }
+            else if (set === 'pixelart') {
+                // Pixelart icons have hardcoded fill colors that need to be replaced
+                svg = svg.replace(/fill="#[^"]*"/g, 'fill="currentColor"');
+                svg = svg.replace(/fill='#[^']*'/g, "fill='currentColor'");
+            }
+            else {
+                // Other icon sets are fill-based
+                if (!newAttrs.includes('fill=')) {
+                    newAttrs += " fill=\"currentColor\"";
+                }
+            }
+            // Add crisp rendering attributes
+            if (!newAttrs.includes('shape-rendering=')) {
+                newAttrs += " shape-rendering=\"crispEdges\"";
             }
             return "<svg".concat(newAttrs, ">");
         });
         return svg.trim();
     }, [svgContent, size, className]);
-    if (loading || error || !processedSvg) {
+    if (loading) {
         return null;
     }
-    return ((0, jsx_runtime_1.jsx)("div", { dangerouslySetInnerHTML: { __html: processedSvg } }));
+    if (error || !processedSvg) {
+        return null;
+    }
+    return ((0, jsx_runtime_1.jsx)("div", { style: { imageRendering: 'crisp-edges' }, dangerouslySetInnerHTML: { __html: processedSvg } }));
 }

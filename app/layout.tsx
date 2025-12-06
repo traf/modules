@@ -42,7 +42,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/10 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
         <div className="bg-black fixed inset-0 flex items-center justify-center z-50 overflow-hidden">
-          <Image src="/modules.png" alt="Modules" className="w-full pointer-events-none scale-110" />
+          <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-110" />
         </div>
         <Nav />
         <div className="flex flex-1 overflow-hidden">

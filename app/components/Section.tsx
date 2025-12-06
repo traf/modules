@@ -13,7 +13,7 @@ export default function Section({ id, title, description, className, children }:
         <h3>{title}<span>();</span></h3>
         <p>{description}</p>
       </div>
-      <div className="space-y-12 p-6">
+      <div className="space-y-6 p-6">
         {children}
       </div>
     </section>

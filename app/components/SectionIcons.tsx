@@ -1,85 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Icon } from '@modules/icons';
 import Button from './Button';
 import Code from './Code';
 import Section from './Section';
-import Loader from './Loader';
+
+const iconSets = {
+  huge: ['home-01', 'analytics-01', 'signature', 'code-folder', 'qr-code-01', 'browser', 'checkmark-badge-02', 'chat-feedback', 'money-04', 'zap', 'victory-finger-02', 'square-lock-password'],
+  phosphor: ['house', 'chart-bar', 'signature', 'folder', 'qr-code', 'browser', 'check-circle', 'chat-circle', 'currency-dollar', 'lightning', 'hand-peace', 'lock'],
+  pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'money', 'zap', 'heart', 'lock']
+};
 
 export default function SectionIcons() {
-  const [iconSets, setIconSets] = useState<Record<string, string[]>>({});
   const [selectedSet, setSelectedSet] = useState<string>('huge');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchIconSets = async () => {
-      try {
-        const response = await fetch('/api/icons');
-        const data = await response.json();
-        setIconSets(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch icon sets:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchIconSets();
-  }, []);
 
   return (
     <Section id="icon" title="icon.module" description="Icon component system">
 
       {/* Set Selector */}
       <div className="flex -mx-2 w-full">
-        {loading ? (
-          // Show placeholder buttons while loading
-          ['huge', 'phosphor', 'pixelart'].map(setName => (
-            <Button
-              key={setName}
-              onClick={() => { }}
-              variant="ghost"
-              disabled
-            >
-              {setName}
-            </Button>
-          ))
-        ) : (
-          Object.keys(iconSets).map(setName => (
-            <Button
-              key={setName}
-              onClick={() => setSelectedSet(setName)}
-              variant={selectedSet === setName ? 'primary' : 'ghost'}
-            >
-              {setName}
-            </Button>
-          ))
-        )}
+        {Object.keys(iconSets).map(setName => (
+          <Button
+            key={setName}
+            onClick={() => setSelectedSet(setName)}
+            variant={selectedSet === setName ? 'primary' : 'ghost'}
+          >
+            {setName}
+          </Button>
+        ))}
       </div>
 
       {/* Icon Grid */}
       <div className="flex border w-full divide-x-2 divide-dashed divide-neutral-800">
-        {loading ? (
-          // Initial loading
-          Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="flex items-center justify-center w-full p-6 aspect-square">
-              <Loader />
-            </div>
-          ))
-        ) : selectedSet && iconSets[selectedSet] ? (
-          // Show icons
-          iconSets[selectedSet].map((iconName) => (
-            <div key={`${selectedSet}-${iconName}`} className="flex items-center justify-center w-full p-6 aspect-square">
-              <Icon 
-                name={iconName}
-                set={selectedSet as 'huge' | 'pixelart' | 'phosphor'}
-                color="white"
-                className="w-8"
-              />
-            </div>
-          ))
-        ) : null}
+        {iconSets[selectedSet as keyof typeof iconSets]?.map((iconName) => (
+          <div key={`${selectedSet}-${iconName}`} className="flex items-center justify-center w-full p-6 aspect-square">
+            <Icon 
+              name={iconName}
+              set={selectedSet as 'huge' | 'pixelart' | 'phosphor'}
+              color="white"
+              className="w-8"
+            />
+          </div>
+        ))}
       </div>
 
       <Code>
