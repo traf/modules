@@ -37,11 +37,11 @@ export default function Code({ url, children, filename = "page.tsx", type, title
     const lines = code.split('\n');
     return lines.map((line, index) => (
       <div key={index} className="flex leading-loose">
-        <span className="text-grey select-none pr-5 text-right text-sm">
+        <span className="text-grey select-none pr-5 text-right">
           {type === 'terminal' ? '%' : index + 1}
         </span>
         <span
-          className="text-white text-sm"
+          className="text-white"
           dangerouslySetInnerHTML={{ __html: highlightPunctuation(line) }}
         />
       </div>

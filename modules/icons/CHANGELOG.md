@@ -1,6 +1,24 @@
 # Changelog
 
-All notable changes to the Icon module will be documented in this file.
+All notable changes to the Icon module will be documented in this file
+
+## [0.1.3] - 2024-12-07
+
+### Fixed
+- **Standalone element coloring** - Circle, ellipse, and other standalone SVG elements now properly inherit colors when no explicit `fill` or `stroke` is set
+- **Default color handling** - Elements without color attributes now use `fill="currentColor"` for proper inheritance when no color prop is provided
+- **Hardcoded color replacement** - All hardcoded hex colors in strokes (e.g., `stroke="#000000"`) are now properly replaced with custom colors across all icon sets
+
+### Changed
+- **Removed in-memory caching** - Simplified component by removing unnecessary `svgCache` Map, relying on standard browser HTTP caching instead
+- **Removed cache complexity** - Eliminated `cacheKey` and cache checking logic for more predictable behavior
+
+### Technical Details
+- Added `normalizeStandaloneElements()` function to ensure standalone SVG elements default to `currentColor`
+- Enhanced `applyPhosphorColor()`, `applyHugeColor()`, and `applyLucideColor()` to replace hardcoded hex stroke values
+- Added regex patterns to apply fill/stroke to standalone elements: `<(circle|ellipse|rect|polygon|path|line|polyline)>`
+- Removed `cache: 'force-cache'` from fetch requests to prevent stale SVG issues
+- Browser HTTP caching now handles all SVG caching automatically
 
 ## [0.1.1] - 2024-12-07
 

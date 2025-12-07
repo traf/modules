@@ -80,14 +80,13 @@ export default function IconsPage() {
   // Load all icons for the selected set
   useEffect(() => {
     const loadIcons = async () => {
-      if (allIcons[selectedSet]) return; // Already loaded
-
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/icons/${selectedSet}`);
+        const url = `/api/icons/${selectedSet}${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`;
+        const response = await fetch(url);
         if (response.ok) {
           const icons = await response.json();
-          setAllIcons(prev => ({ ...prev, [selectedSet]: icons }));
+          setAllIcons(prev => ({ ...prev, [`${selectedSet}-${searchQuery}`]: icons }));
         }
       } catch (error) {
         console.error('Failed to load icons:', error);
@@ -97,7 +96,7 @@ export default function IconsPage() {
     };
 
     loadIcons();
-  }, [selectedSet, allIcons]);
+  }, [selectedSet, searchQuery]);
 
   // Autofocus on mount only
   useEffect(() => {
@@ -123,19 +122,11 @@ export default function IconsPage() {
 
   // Filter icons based on search query
   const filteredIcons = useMemo(() => {
-    const currentSetIcons = allIcons[selectedSet] || iconSets[selectedSet as keyof typeof iconSets] || [];
+    const cacheKey = `${selectedSet}-${searchQuery}`;
+    const currentSetIcons = allIcons[cacheKey] || [];
 
-    let icons: (string | null)[];
-    if (!searchQuery.trim()) {
-      icons = currentSetIcons.slice(0, 48); // Keep 48 icons
-    } else {
-      const query = searchQuery.toLowerCase();
-      icons = currentSetIcons
-        .filter(iconName => iconName.toLowerCase().includes(query))
-        .slice(0, 48); // Keep 48 results
-    }
+    const icons: (string | null)[] = currentSetIcons.slice(0, 48);
 
-    // Pad to exactly 48 items to maintain 8x6 grid
     const paddedIcons = [...icons];
     while (paddedIcons.length < 48) {
       paddedIcons.push(null);
@@ -149,8 +140,6 @@ export default function IconsPage() {
 
       {/* Left Sidebar - Controls and Code */}
       <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 border-r lg:overflow-y-auto">
-
-        {/* <Icon name="android-logo" set="phosphor" color="white" className="w-9" /> */}
 
         {/* Search */}
         <Input
