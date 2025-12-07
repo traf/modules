@@ -29,12 +29,10 @@ export async function GET(
         .sort();
 
       return NextResponse.json(iconNames);
-    } catch (error) {
-      console.error(`Error reading icons directory for set ${set}:`, error);
+    } catch {
       return NextResponse.json({ error: 'Failed to read icons directory' }, { status: 500 });
     }
-  } catch (error) {
-    console.error('Error in icons API:', error);
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

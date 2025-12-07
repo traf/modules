@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Image from "next/image";
-import Sidebar from "./components/Sidebar";
 import Nav from "./components/Nav";
 import "./globals.css";
 

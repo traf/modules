@@ -3,6 +3,17 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { resolveColor } from '@modules/icons/src/colors'
 
+function normalizeStandaloneElements(svg: string, iconPath: string): string {
+  const [iconSet] = iconPath.split('/')
+  
+  // For stroke-based icon sets (phosphor, huge, lucide), add fill="currentColor" to standalone elements
+  if (iconSet === 'phosphor' || iconSet === 'huge' || iconSet === 'lucide') {
+    return svg.replace(/<(circle|ellipse)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, '<$1 fill="currentColor"$2>')
+  }
+  
+  return svg
+}
+
 function applyColorByIconSet(svg: string, iconPath: string, resolvedColor: string): string {
   const [iconSet] = iconPath.split('/')
 
@@ -94,7 +105,6 @@ function applyLucideColor(svg: string, resolvedColor: string): string {
     return modified
   }
 
-  // Fallback to generic stroke handling
   return applyGenericColor(svg, resolvedColor)
 }
 
@@ -175,6 +185,9 @@ export async function GET(
     const svgContent = await readFile(filePath, 'utf-8')
 
     let modifiedSvg = svgContent
+
+    // Always normalize standalone elements (circles, ellipses without stroke/fill)
+    modifiedSvg = normalizeStandaloneElements(modifiedSvg, iconPath)
 
     // Apply color modification using icon set-specific rules
     if (color) {

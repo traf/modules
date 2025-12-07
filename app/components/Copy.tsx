@@ -26,7 +26,7 @@ export default function Copy({
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       // Silently fail
     }
   };

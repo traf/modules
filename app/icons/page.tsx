@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Icon } from '@modules/icons';
 import { resolveColor } from '@modules/icons/src/colors';
-import Button from '../components/Button';
 import Code from '../components/Code';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
@@ -39,7 +38,7 @@ export default function IconsPage() {
         await navigator.clipboard.writeText(iconName);
         setCopiedIcon(iconName);
         setTimeout(() => setCopiedIcon(''), 1000);
-      } catch (err) {
+      } catch {
         // Silently fail
       }
     } else if (copyMode === 'svg') {
@@ -56,7 +55,7 @@ export default function IconsPage() {
           setCopiedIcon(iconName);
           setTimeout(() => setCopiedIcon(''), 1000);
         }
-      } catch (err) {
+      } catch {
         // Silently fail
       }
     } else if (copyMode === 'component') {
@@ -72,7 +71,7 @@ export default function IconsPage() {
         await navigator.clipboard.writeText(componentCode);
         setCopiedIcon(iconName);
         setTimeout(() => setCopiedIcon(''), 1000);
-      } catch (err) {
+      } catch {
         // Silently fail
       }
     }
