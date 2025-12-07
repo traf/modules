@@ -28,6 +28,7 @@ export default function IconsPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedIcon, setCopiedIcon] = useState<string>('');
   const [copyMode, setCopyMode] = useState<string>('name');
+  const [isInstallOpen, setIsInstallOpen] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const handleIconClick = async (iconName: string) => {
@@ -139,7 +140,7 @@ export default function IconsPage() {
     <div className="w-full flex flex-col lg:flex-row items-start justify-start h-full">
 
       {/* Left Sidebar - Controls and Code */}
-      <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 border-r lg:overflow-y-auto">
+      <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r lg:overflow-y-auto relative">
 
         {/* Search */}
         <Input
@@ -226,15 +227,37 @@ export default function IconsPage() {
           />
         </div>
 
-        {/* Install */}
-        <Code type="terminal" title="Install" className="mt-auto">{`npm install @modul-es/icons`}</Code>
+        {/* Fixed bottom installation panel */}
+        <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t border-r border-neutral-800 z-50">
+          <button
+            onClick={() => setIsInstallOpen(!isInstallOpen)}
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900"
+          >
+            <span className="text-white font-medium">Installation</span>
+            <Icon
+              name="arrow-down-01"
+              set="huge"
+              color="white"
+              style="sharp"
+              className={`w-5 transition-transform ${isInstallOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
 
-        {/* Usage */}
-        <Code title="Usage">
-          {`import { Icon } from '@modul-es/icons';
+          <div
+            className={`overflow-hidden transition-all duration-200 ${
+              isInstallOpen ? 'max-h-96' : 'max-h-0'
+            }`}
+          >
+            <div className="p-6 pt-4 flex flex-col gap-6">
+              <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
+              <Code title="Usage">
+                {`import { Icon } from '@modul-es/icons';
 
 <Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''} />`}
-        </Code>
+              </Code>
+            </div>
+          </div>
+        </div>
 
       </div>
 
