@@ -12,7 +12,7 @@ A simple icon system supporting multiple icon sets with consistent props and sty
 ## Basic Usage
 
 ```tsx
-import { Icon } from '@modules/icons';
+import { Icon } from '@modul-es/icons';
 
 // Basic usage
 <Icon set="huge" name="home-01" color="slate-400" stroke="2" />

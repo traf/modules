@@ -48,7 +48,7 @@ export default function SectionIcons() {
 
       <Code>
         {
-          `import { Icon } from '@modules/icons';
+          `import { Icon } from '@modul-es/icons';
 
 <Icon set="${selectedSet}" name="home-01" color="white" stroke="1.5" />
 
