@@ -186,13 +186,13 @@ export async function GET(
 
     let modifiedSvg = svgContent
 
-    // Always normalize standalone elements (circles, ellipses without stroke/fill)
-    modifiedSvg = normalizeStandaloneElements(modifiedSvg, iconPath)
-
     // Apply color modification using icon set-specific rules
     if (color) {
       const resolvedColor = resolveColor(color)
       modifiedSvg = applyColorByIconSet(modifiedSvg, iconPath, resolvedColor)
+    } else {
+      // Only normalize standalone elements when no color is provided
+      modifiedSvg = normalizeStandaloneElements(modifiedSvg, iconPath)
     }
 
 

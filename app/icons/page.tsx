@@ -150,6 +150,8 @@ export default function IconsPage() {
       {/* Left Sidebar - Controls and Code */}
       <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 border-r lg:overflow-y-auto">
 
+        <Icon name="android-logo" set="phosphor" color="white" className="w-9" />
+
         {/* Search */}
         <Input
           ref={searchInputRef}
