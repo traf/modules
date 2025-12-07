@@ -16,5 +16,6 @@ import { Icon } from '@modules/icons';
 ```
 
 Available icon sets: `huge`, `phosphor`, `lucide`, `pixelart`
+
 Available props: `set`, `name`, `color` (hex or tailwind colors), `stroke`
 
