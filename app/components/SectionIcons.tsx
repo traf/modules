@@ -38,12 +38,12 @@ export default function SectionIcons() {
       </div>
 
       {/* Set & Color Selectors */}
-      <div className="flex w-full gap-6">
+      <div className="flex flex-col lg:flex-row w-full gap-6">
         <div className="border bg-black w-full">
           <div className="flex items-center justify-between border-b p-4 text-grey">
             Set
           </div>
-          <div className="p-2.5 flex">
+          <div className="p-2.5 flex flex-col lg:flex-row">
             {Object.keys(iconSets).map(setName => (
               <Button
                 key={setName}
@@ -58,7 +58,7 @@ export default function SectionIcons() {
         <div className="border bg-black w-full">
           <div className="flex items-center justify-between border-b p-4 text-grey">
             <p>Color</p>
-            <p>Accepts hex & tailwind color names</p>
+            <p className="hidden lg:block">Accepts hex & tailwind color names</p>
           </div>
           <div className="p-2.5 flex">
             {colors.map(colorName => (
@@ -74,7 +74,7 @@ export default function SectionIcons() {
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         <Code type="terminal">{`npm install @modul-es/icons`}</Code>
 
         <Code>
