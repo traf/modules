@@ -3,13 +3,13 @@ interface ButtonProps {
   children: React.ReactNode;
   className?: string;
   target?: string;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'icon' | 'ghost';
   disabled?: boolean;
 }
 
 export default function Button({ href, children, className = '', target, onClick, variant = 'secondary', disabled = false }: ButtonProps) {
-  const baseClasses = 'flex items-center justify-center font cursor-pointer group disabled:cursor-not-allowed p-2';
+  const baseClasses = 'flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed p-2';
 
   const variantClasses = {
     primary: '',

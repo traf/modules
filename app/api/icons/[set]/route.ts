@@ -21,21 +21,12 @@ export async function GET(
       const files = await readdir(iconsDir);
       
       // Filter SVG files and remove the .svg extension
-      let iconNames = files
+      // Exclude any icons with style variants (pattern: name.style.svg)
+      const iconNames = files
         .filter(file => file.endsWith('.svg'))
         .map(file => file.replace('.svg', ''))
+        .filter(name => !name.includes('.'))
         .sort();
-
-      // For phosphor, exclude style variants (keep only base/default icons)
-      if (set === 'phosphor') {
-        iconNames = iconNames.filter(name => 
-          !name.includes('.thin') && 
-          !name.includes('.light') && 
-          !name.includes('.bold') && 
-          !name.includes('.fill') && 
-          !name.includes('.duotone')
-        );
-      }
 
       return NextResponse.json(iconNames);
     } catch (error) {

@@ -26,7 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`font w-full p-4 bg-transparent text-white placeholder:text-grey outline-none border ${className}`}
+          className={`w-full h-14 px-4 bg-transparent text-white placeholder:text-grey outline-none border ${className}`}
         />
       </div>
     );

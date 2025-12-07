@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Icon } from '@modules/icons';
-import Button from './Button';
+import Copy from './Copy';
 
 interface CodeProps {
   url?: string;
@@ -16,7 +15,6 @@ interface CodeProps {
 
 export default function Code({ url, children, filename = "page.tsx", type, title, subtitle, className }: CodeProps) {
   const [data, setData] = useState<string>('{ "Loading": "True" }');
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (url) {
@@ -39,32 +37,23 @@ export default function Code({ url, children, filename = "page.tsx", type, title
     const lines = code.split('\n');
     return lines.map((line, index) => (
       <div key={index} className="flex leading-loose">
-        <span className="text-grey select-none pr-5 text-right">
+        <span className="text-grey select-none pr-5 text-right text-sm">
           {type === 'terminal' ? '%' : index + 1}
         </span>
         <span
-          className="text-white"
+          className="text-white text-sm"
           dangerouslySetInnerHTML={{ __html: highlightPunctuation(line) }}
         />
       </div>
     ));
   };
 
-  const handleCopy = async () => {
-    const textToCopy = typeof children === 'string' ? formatCode(children) : data;
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      // Silently fail
-    }
-  };
 
   const codeContent = typeof children === 'string' ? formatCode(children) : data;
   const hasStringContent = typeof children === 'string' || url;
   const showCopy = hasStringContent;
   const displayTitle = title || (type === 'terminal' ? 'Terminal' : filename);
+  const textToCopy = typeof children === 'string' ? formatCode(children) : data;
 
   return (
     <div className={`bg-black w-full h-fit ${className || ''}`}>
@@ -75,19 +64,10 @@ export default function Code({ url, children, filename = "page.tsx", type, title
         <div className="flex items-center gap-4">
           {subtitle && <p className="text-grey">{subtitle}</p>}
           {showCopy && (
-            <Button
-              onClick={handleCopy}
-              variant="icon"
+            <Copy
+              text={textToCopy}
               className="-m-2"
-            >
-              <Icon
-                name={copied ? "tick-02" : "copy-01"}
-                style="sharp"
-                color="white"
-                stroke="2"
-                className="w-4 group-hover:invert"
-              />
-            </Button>
+            />
           )}
         </div>
       </div>
@@ -95,7 +75,7 @@ export default function Code({ url, children, filename = "page.tsx", type, title
       {/* Content */}
       {hasStringContent ? (
         <pre className="p-4 overflow-x-auto scrollbar-hide border">
-          <code className="font text-white relaitve">
+          <code className="font text-white relative">
             {renderCodeWithLineNumbers(codeContent)}
           </code>
         </pre>

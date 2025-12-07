@@ -33,6 +33,9 @@ function applyPhosphorColor(svg: string, resolvedColor: string): string {
   // Phosphor icons use stroke="currentColor" for outline variants
   if (/stroke="currentColor"/.test(svg)) {
     let modified = svg.replace(/stroke="currentColor"/g, `stroke="${resolvedColor}"`)
+    // Also replace any hardcoded stroke colors on any element
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
     // Clean up any interfering hardcoded fills (keep fill="none")
     modified = modified.replace(/fill="#[a-fA-F0-9]{6}"/g, 'fill="none"')
     modified = modified.replace(/fill="#[a-fA-F0-9]{3}"/g, 'fill="none"')
@@ -51,7 +54,11 @@ function applyPhosphorColor(svg: string, resolvedColor: string): string {
 function applyHugeColor(svg: string, resolvedColor: string): string {
   // Huge icons typically use stroke-based coloring
   if (/stroke="(?!none)[^"]*"/.test(svg)) {
-    return svg.replace(/stroke="(?!none)[^"]*"/g, `stroke="${resolvedColor}"`)
+    let modified = svg.replace(/stroke="(?!none)[^"]*"/g, `stroke="${resolvedColor}"`)
+    // Also replace hardcoded stroke colors
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
+    return modified
   }
 
   // Some huge icons use fill
@@ -74,7 +81,11 @@ function applyPixelartColor(svg: string, resolvedColor: string): string {
 function applyLucideColor(svg: string, resolvedColor: string): string {
   // Lucide icons use stroke="currentColor" for all variants
   if (/stroke="currentColor"/.test(svg)) {
-    return svg.replace(/stroke="currentColor"/g, `stroke="${resolvedColor}"`)
+    let modified = svg.replace(/stroke="currentColor"/g, `stroke="${resolvedColor}"`)
+    // Also replace any hardcoded stroke colors
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
+    modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
+    return modified
   }
 
   // Fallback to generic stroke handling

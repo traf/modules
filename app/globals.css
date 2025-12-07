@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-.font { 
+.font, button, input { 
   text-transform: uppercase;
   font-family: var(--font);
   font-weight: 400;
@@ -14,18 +14,14 @@
 @layer base {
   p, span { @apply text-grey; }
   a { @apply w-fit text-grey hover:text-white py-0.5; }
+  button { @apply cursor-pointer; }
 }
-
 @layer utilities {
   .border { @apply border-2 border-dashed border-neutral-800; }
   .border-r { @apply border-r-2 border-dashed border-neutral-800; }
   .border-l { @apply border-l-2 border-dashed border-neutral-800; }
   .border-t { @apply border-t-2 border-dashed border-neutral-800; }
   .border-b { @apply border-b-2 border-dashed border-neutral-800; }
-  .scrollbar-hide { 
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar { 
-    display: none; 
-  }
+  .scrollbar-hide { scrollbar-width: none;}
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 }
