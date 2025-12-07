@@ -13,6 +13,8 @@ function applyColorByIconSet(svg: string, iconPath: string, resolvedColor: strin
       return applyHugeColor(svg, resolvedColor)
     case 'pixelart':
       return applyPixelartColor(svg, resolvedColor)
+    case 'lucide':
+      return applyLucideColor(svg, resolvedColor)
     default:
       // Fallback to generic color application
       return applyGenericColor(svg, resolvedColor)
@@ -69,6 +71,16 @@ function applyPixelartColor(svg: string, resolvedColor: string): string {
   return applyGenericColor(svg, resolvedColor)
 }
 
+function applyLucideColor(svg: string, resolvedColor: string): string {
+  // Lucide icons use stroke="currentColor" for all variants
+  if (/stroke="currentColor"/.test(svg)) {
+    return svg.replace(/stroke="currentColor"/g, `stroke="${resolvedColor}"`)
+  }
+
+  // Fallback to generic stroke handling
+  return applyGenericColor(svg, resolvedColor)
+}
+
 function applyGenericColor(svg: string, resolvedColor: string): string {
   // Generic fallback: try fill first, then stroke, then add fill
   if (/fill="(?!none)[^"]*"/.test(svg)) {
@@ -92,6 +104,7 @@ function applyStrokeByIconSet(svg: string, iconPath: string, strokeWidth: string
       return svg
     case 'huge':
     case 'pixelart':
+    case 'lucide':
       // These icon sets support stroke width modification
       if (/stroke="(?!none)[^"]*"/.test(svg)) {
         return svg.replace(/stroke-width="[^"]*"/g, `stroke-width="${strokeWidth}"`)
