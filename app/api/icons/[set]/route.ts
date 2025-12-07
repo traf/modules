@@ -1,86 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
+import { keywordMap } from '../keywords';
 
-function tokenize(str: string): string[] {
-  return str.toLowerCase().split(/[-_\s.]+/).filter(Boolean);
-}
-
-function levenshtein(a: string, b: string): number {
-  if (a.length === 0) return b.length;
-  if (b.length === 0) return a.length;
-  
-  const matrix: number[][] = [];
-  
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-  
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-  
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  
-  return matrix[b.length][a.length];
-}
-
-function scoreMatch(iconName: string, query: string): number {
-  const name = iconName.toLowerCase();
-  const q = query.toLowerCase();
-  
-  if (name === q) return 1000;
-  if (name.startsWith(q)) return 900;
-  if (name.includes(q)) return 800;
-  
-  const iconTokens = tokenize(iconName);
-  let bestScore = 0;
-  
-  for (const token of iconTokens) {
-    if (token === q) {
-      bestScore = Math.max(bestScore, 700);
-    } else if (token.startsWith(q)) {
-      bestScore = Math.max(bestScore, 600);
-    } else if (token.includes(q)) {
-      bestScore = Math.max(bestScore, 500);
-    } else {
-      const distance = levenshtein(token, q);
-      const maxLen = Math.max(token.length, q.length);
-      const similarity = 1 - (distance / maxLen);
-      
-      if (similarity > 0.6) {
-        bestScore = Math.max(bestScore, similarity * 400);
-      }
-    }
-  }
-  
-  return bestScore;
-}
+let iconCache: Record<string, string[]> = {};
 
 function searchIcons(iconNames: string[], query: string): string[] {
   if (!query.trim()) return iconNames;
 
-  const scored = iconNames
-    .map(iconName => ({
-      iconName,
-      score: scoreMatch(iconName, query)
-    }))
-    .filter(item => item.score > 0)
-    .sort((a, b) => b.score - a.score);
+  const lowerQuery = query.toLowerCase();
+  const keywords = keywordMap[lowerQuery] || [];
+  const allTerms = [lowerQuery, ...keywords];
 
-  return scored.map(item => item.iconName);
+  const scored = iconNames
+    .map(iconName => {
+      const lowerName = iconName.toLowerCase();
+      let score = 0;
+
+      for (const term of allTerms) {
+        if (lowerName === term) {
+          score = Math.max(score, 1000);
+        } else if (lowerName.startsWith(term)) {
+          score = Math.max(score, 900);
+        } else if (lowerName.includes(term)) {
+          score = Math.max(score, 800);
+        } else {
+          const nameParts = lowerName.split(/[-_]/);
+          for (const part of nameParts) {
+            if (part === term) {
+              score = Math.max(score, 700);
+            } else if (part.startsWith(term)) {
+              score = Math.max(score, 600);
+            } else if (part.includes(term)) {
+              score = Math.max(score, 500);
+            }
+          }
+        }
+      }
+
+      return { iconName, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.iconName);
+
+  return scored;
 }
 
 export async function GET(
@@ -102,13 +66,17 @@ export async function GET(
     try {
       const files = await readdir(iconsDir);
       
-      const iconNames = files
+      let iconNames = files
         .filter(file => file.endsWith('.svg'))
         .map(file => file.replace('.svg', ''))
         .filter(name => !name.includes('.'))
         .sort();
 
-      const results = searchIcons(iconNames, query);
+      if (!iconCache[set]) {
+        iconCache[set] = iconNames;
+      }
+
+      const results = searchIcons(iconCache[set], query);
 
       return NextResponse.json(results);
     } catch {
