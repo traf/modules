@@ -13,11 +13,7 @@ const iconSets = {
   pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock']
 };
 
-const colors = {
-  'white': 'white',
-  '#06f': '#06f',
-  'slate-400': 'slate-400'
-};
+const colors = ['white', '#2563eb', 'rose-400', 'violet-600'];
 
 export default function SectionIcons() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
@@ -42,32 +38,43 @@ export default function SectionIcons() {
       </div>
 
       {/* Set & Color Selectors */}
-      <div className="flex -mx-1.5 w-full justify-between">
-        <div className="flex">
-          {Object.keys(iconSets).map(setName => (
-            <Button
-              key={setName}
-              onClick={() => setSelectedSet(setName)}
-              variant={selectedSet === setName ? 'primary' : 'ghost'}
-            >
-              {setName}
-            </Button>
-          ))}
+      <div className="flex w-full gap-6">
+        <div className="border bg-black w-full">
+          <div className="flex items-center justify-between border-b p-4 text-grey">
+            Set
+          </div>
+          <div className="p-2.5 flex">
+            {Object.keys(iconSets).map(setName => (
+              <Button
+                key={setName}
+                onClick={() => setSelectedSet(setName)}
+                variant={selectedSet === setName ? 'primary' : 'ghost'}
+              >
+                {setName}
+              </Button>
+            ))}
+          </div>
         </div>
-        <div className="flex">
-          {Object.keys(colors).map(colorName => (
-            <Button
-              key={colorName}
-              onClick={() => setSelectedColor(colorName)}
-              variant={selectedColor === colorName ? 'primary' : 'ghost'}
-            >
-              {colorName}
-            </Button>
-          ))}
+        <div className="border bg-black w-full">
+          <div className="flex items-center justify-between border-b p-4 text-grey">
+            <p>Color</p>
+            <p>Accepts hex & tailwind color names</p>
+          </div>
+          <div className="p-2.5 flex">
+            {colors.map(colorName => (
+              <Button
+                key={colorName}
+                onClick={() => setSelectedColor(colorName)}
+                variant={selectedColor === colorName ? 'primary' : 'ghost'}
+              >
+                {colorName}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         <Code type="terminal">{`npm install @modul-es/icons`}</Code>
 
         <Code>
