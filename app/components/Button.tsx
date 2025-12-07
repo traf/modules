@@ -13,9 +13,9 @@ export default function Button({ href, children, className = '', target, onClick
 
   const variantClasses = {
     primary: '',
-    secondary: 'text-neutral-500 hover:text-white',
+    secondary: 'text-grey hover:text-white',
     ghost: '',
-    icon: 'aspect-square text-neutral-500 hover:text-white',
+    icon: 'aspect-square text-grey hover:text-white',
   }[variant];
 
   const innerClasses = {

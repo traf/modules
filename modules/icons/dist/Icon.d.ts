@@ -1,4 +1,4 @@
-export type IconSet = 'huge' | 'pixelart' | 'phosphor';
+export type IconSet = 'huge' | 'pixelart' | 'phosphor' | 'lucide';
 export interface IconProps {
     name: string;
     color?: string;

@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Icon = Icon;
 var jsx_runtime_1 = require("react/jsx-runtime");
 var react_1 = require("react");
-var shared_1 = require("@modules/shared");
+var colors_1 = require("./colors");
 // Cache for loaded SVG content
 var svgCache = new Map();
 function Icon(_a) {
@@ -74,13 +74,13 @@ function Icon(_a) {
                         _a.trys.push([1, 6, , 7]);
                         params = new URLSearchParams();
                         if (color !== 'currentColor') {
-                            colorValue = (0, shared_1.resolveColor)(color).replace('#', '');
+                            colorValue = (0, colors_1.resolveColor)(color).replace('#', '');
                             params.set('color', colorValue);
                         }
                         if (stroke)
                             params.set('stroke', stroke);
-                        url = "/api/icons/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
-                        return [4 /*yield*/, fetch(url, { cache: 'force-cache' })];
+                        url = "https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
+                        return [4 /*yield*/, fetch(url, { mode: 'cors', cache: 'force-cache' })];
                     case 2:
                         response = _a.sent();
                         if (!response.ok) return [3 /*break*/, 4];
@@ -119,7 +119,7 @@ function Icon(_a) {
             if (!newAttrs.includes('class=')) {
                 newAttrs += " class=\"".concat(className, "\"");
             }
-            if (set !== 'phosphor' && !newAttrs.includes('fill=')) {
+            if (set !== 'phosphor' && set !== 'lucide' && !newAttrs.includes('fill=')) {
                 newAttrs += " fill=\"currentColor\"";
             }
             if (!newAttrs.includes('shape-rendering=')) {

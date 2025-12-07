@@ -37,7 +37,6 @@ class ENSService {
             return ensName ? normalizeENSName(ensName) : null;
         }
         catch (error) {
-            console.error('Error looking up ENS name:', error);
             return null;
         }
     }
@@ -48,7 +47,6 @@ class ENSService {
             return address ? normalizeAddress(address) : null;
         }
         catch (error) {
-            console.error('Error looking up address:', error);
             return null;
         }
     }
@@ -81,7 +79,6 @@ class ENSService {
             return response;
         }
         catch (error) {
-            console.error('Error getting ENS profile:', error);
             return null;
         }
     }

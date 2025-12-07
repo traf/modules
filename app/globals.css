@@ -7,9 +7,13 @@
   font-size: 15px;
 }
 
+@theme {
+  --color-grey: theme(colors.neutral.500);
+}
+
 @layer base {
-  p, span { @apply text-neutral-500; }
-  a { @apply w-fit text-neutral-500 hover:text-white py-0.5; }
+  p, span { @apply text-grey; }
+  a { @apply w-fit text-grey hover:text-white py-0.5; }
 }
 
 @layer utilities {

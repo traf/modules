@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolveColor = resolveColor;
 // Tailwind color mappings to hex values (without # prefix for URL params)
-const tailwindColors = {
+var tailwindColors = {
     // Red
     'red-50': 'fef2f2', 'red-100': 'fee2e2', 'red-200': 'fecaca', 'red-300': 'fca5a5',
     'red-400': 'f87171', 'red-500': 'ef4444', 'red-600': 'dc2626', 'red-700': 'b91c1c',
@@ -100,17 +100,17 @@ const tailwindColors = {
 function resolveColor(color) {
     // If it's already a hex color, return as is
     if (color.match(/^[0-9a-fA-F]{3,8}$/)) {
-        return `#${color}`;
+        return "#".concat(color);
     }
     // Check if it's a Tailwind color
     if (tailwindColors[color]) {
-        return `#${tailwindColors[color]}`;
+        return "#".concat(tailwindColors[color]);
     }
     // If it starts with bg-, text-, border-, etc., extract the color part
-    const colorMatch = color.match(/^(?:bg-|text-|border-|ring-|from-|to-|via-)?(.+)$/);
+    var colorMatch = color.match(/^(?:bg-|text-|border-|ring-|from-|to-|via-)?(.+)$/);
     if (colorMatch && tailwindColors[colorMatch[1]]) {
-        return `#${tailwindColors[colorMatch[1]]}`;
+        return "#".concat(tailwindColors[colorMatch[1]]);
     }
     // Default to the original color (might be a CSS color name)
-    return color.startsWith('#') ? color : `#${color}`;
+    return color.startsWith('#') ? color : "#".concat(color);
 }

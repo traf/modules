@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ensService } from '@modules/crypto';
-import { checkRateLimit, getCache, getClientIP } from '@modules/shared';
+import { checkRateLimit, getCache, getClientIP } from '@modules/crypto/src/utils';
 
 const config = {
   rateLimit: { windowMs: 60 * 1000, maxRequests: 60 },

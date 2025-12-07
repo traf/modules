@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit, getCache, getClientIP } from '@modules/shared';
+import { checkRateLimit, getCache, getClientIP } from '@modules/crypto/src/utils';
 import { fetchCryptoPrice } from '@modules/crypto';
 
 const config = {

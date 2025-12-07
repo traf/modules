@@ -8,23 +8,43 @@ interface CodeProps {
   url?: string;
   children?: string;
   copy?: boolean;
+  filename?: string;
 }
 
-export default function Code({ url, children, copy = true }: CodeProps) {
+export default function Code({ url, children, copy = true, filename = "page.tsx" }: CodeProps) {
   const [data, setData] = useState<string>('{ "Loading": "True" }');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (url) {
-    fetch(url)
-      .then(res => res.json())
-      .then(json => setData(JSON.stringify(json, null, 2)))
-      .catch(() => setData('{ "404": "Not Found" }'));
+      fetch(url)
+        .then(res => res.json())
+        .then(json => setData(JSON.stringify(json, null, 2)))
+        .catch(() => setData('{ "404": "Not Found" }'));
     }
   }, [url]);
 
   const formatCode = (code: string) => {
     return code.trim();
+  };
+
+  const highlightPunctuation = (code: string) => {
+    return code.replace(/([{}()[\];,.<>=!&|+\-*/])/g, '<span class="text-grey">$1</span>');
+  };
+
+  const renderCodeWithLineNumbers = (code: string) => {
+    const lines = code.split('\n');
+    return lines.map((line, index) => (
+      <div key={index} className="flex leading-loose">
+        <span className="text-grey select-none pr-8 text-right">
+          {index + 1}
+        </span>
+        <span
+          className="text-white"
+          dangerouslySetInnerHTML={{ __html: highlightPunctuation(line) }}
+        />
+      </div>
+    ));
   };
 
   const handleCopy = async () => {
@@ -38,26 +58,38 @@ export default function Code({ url, children, copy = true }: CodeProps) {
     }
   };
 
+  const codeContent = children ? formatCode(children) : data;
+
   return (
-    <pre className="border rounded-sm bg-white/5 w-fit my-1 p-6 overflow-x-auto max-w-full relative">
-      <code className="font !text-sm">
-        {children ? formatCode(children) : data}
-      </code>
-      {copy && (
-        <Button
-          onClick={handleCopy}
-          variant="icon"
-          className="absolute top-4 right-4"
-        >
-          <Icon
-            name={copied ? "tick-02" : "copy-01"}
-            style="sharp"
-            color="white"
-            stroke="2"
-            className="w-4 group-hover:invert"
-          />
-        </Button>
-      )}
-    </pre>
+    <div className="border bg-black w-fit my-1 overflow-x-auto max-w-full">
+
+      {/* Titlebar */}
+      <div className="border-b p-1 flex items-center justify-between">
+        <span className="text-grey ml-4">{filename}</span>
+        {copy && (
+          <Button
+            onClick={handleCopy}
+            variant="icon"
+            className="ml-4"
+          >
+            <Icon
+              name={copied ? "tick-02" : "copy-01"}
+              style="sharp"
+              color="white"
+              stroke="2"
+              className="w-4 group-hover:invert"
+            />
+          </Button>
+        )}
+      </div>
+
+      {/* Code */}
+      <pre className="p-5 overflow-x-auto">
+        <code className="font text-white">
+          {renderCodeWithLineNumbers(codeContent)}
+        </code>
+      </pre>
+
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { resolveColor } from '@modules/shared'
+import { resolveColor } from './colors'
 
-export type IconSet = 'huge' | 'pixelart' | 'phosphor';
+export type IconSet = 'huge' | 'pixelart' | 'phosphor' | 'lucide';
 
 export interface IconProps {
     name: string;
@@ -98,7 +98,7 @@ export function Icon({
                 newAttrs += ` class="${className}"`;
             }
 
-            if (set !== 'phosphor' && !newAttrs.includes('fill=')) {
+            if (set !== 'phosphor' && set !== 'lucide' && !newAttrs.includes('fill=')) {
                 newAttrs += ` fill="currentColor"`;
             }
 

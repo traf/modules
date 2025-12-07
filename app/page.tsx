@@ -7,9 +7,14 @@ import SectionIcons from './components/SectionIcons';
 export default function Home() {
   return (
     <>
+
+      {/* <div className="flex items-center justify-center w-full h-full">
+        <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-110 max-w-full select-none" priority />
+      </div> */}
+
       <Section id="modules" title="Modules" description="Code && UI component repository">
         <div className="w-full pt-28 pb-40 overflow-x-hidden">
-          <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-110" priority />
+          <Image src="/modules.png" width={1920} height={1080} alt="Modules" className="w-full pointer-events-none scale-200 lg:scale-110" priority />
         </div>
       </Section>
 

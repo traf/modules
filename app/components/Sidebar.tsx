@@ -80,7 +80,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="flex flex-col w-64 h-full py-5 bg-black border-r flex-shrink-0">
+    <aside className="hidden lg:flex flex-col w-64 h-full py-5 bg-black border-r flex-shrink-0">
       {sections.map((section) => (
         <Button
           key={section.name}

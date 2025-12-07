@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { resolveColor } from '@modules/shared'
+import { resolveColor } from '@modules/icons/src/colors'
 
 function applyColorByIconSet(svg: string, iconPath: string, resolvedColor: string): string {
   const [iconSet] = iconPath.split('/')

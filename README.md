@@ -15,6 +15,6 @@ import { Icon } from '@modules/icons';
 <Icon set="huge" name="home-01" color="slate-400" stroke="2" />
 ```
 
-Available icon sets: `huge`, `pixelart`
-Available props: `set`, `name`, `color` (accepts hex or tailwind color names), `stroke`,  and `className`
+Available icon sets: `huge`, `phosphor`, `lucide`, `pixelart`
+Available props: `set`, `name`, `color` (hex or tailwind colors), `stroke`
 

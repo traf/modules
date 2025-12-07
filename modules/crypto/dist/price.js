@@ -35,7 +35,6 @@ async function fetchCryptoPrice(symbol) {
         });
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`Alchemy API error ${response.status}:`, errorText);
             throw new Error(`Alchemy API error: ${response.status} - ${errorText}`);
         }
         const data = await response.json();
@@ -59,7 +58,6 @@ async function fetchCryptoPrice(symbol) {
         };
     }
     catch (error) {
-        console.error('Price fetch error:', error);
         throw new Error(`Failed to fetch crypto price: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }

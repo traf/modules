@@ -1,7 +1,7 @@
 {
   "name": "@modules/icons",
-  "version": "0.1.0",
-  "description": "React icon components for the modules design system",
+  "version": "0.1.1",
+  "description": "Icon component system",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -18,9 +18,6 @@
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
-  "dependencies": {
-    "@modules/shared": "workspace:*"
-  },
   "peerDependencies": {
     "react": ">=16.8.0"
   },
@@ -30,10 +27,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/modules/modules.git",
+    "url": "https://github.com/traf/modules.git",
     "directory": "modules/icons"
   },
   "keywords": ["react", "icons", "components", "modules"],
-  "author": "Modules Team",
-  "license": "MIT"
+  "author": "@traf"
 }
