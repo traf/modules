@@ -40,10 +40,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/10 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
+      <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/20 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
         <Nav />
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar />
           <main className="flex-1 flex flex-col overflow-y-auto">
             {children}
           </main>

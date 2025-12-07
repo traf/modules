@@ -6,13 +6,15 @@ import Button from './Button';
 
 interface CodeProps {
   url?: string;
-  children?: string;
-  copy?: boolean;
+  children?: string | React.ReactNode;
   filename?: string;
   type?: 'code' | 'terminal';
+  title?: string;
+  subtitle?: string;
+  className?: string;
 }
 
-export default function Code({ url, children, copy = true, filename = "page.tsx", type = 'code' }: CodeProps) {
+export default function Code({ url, children, filename = "page.tsx", type, title, subtitle, className }: CodeProps) {
   const [data, setData] = useState<string>('{ "Loading": "True" }');
   const [copied, setCopied] = useState(false);
 
@@ -37,7 +39,7 @@ export default function Code({ url, children, copy = true, filename = "page.tsx"
     const lines = code.split('\n');
     return lines.map((line, index) => (
       <div key={index} className="flex leading-loose">
-        <span className="text-grey select-none pr-6 text-right">
+        <span className="text-grey select-none pr-5 text-right">
           {type === 'terminal' ? '%' : index + 1}
         </span>
         <span
@@ -49,7 +51,7 @@ export default function Code({ url, children, copy = true, filename = "page.tsx"
   };
 
   const handleCopy = async () => {
-    const textToCopy = children ? formatCode(children) : data;
+    const textToCopy = typeof children === 'string' ? formatCode(children) : data;
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
@@ -59,37 +61,49 @@ export default function Code({ url, children, copy = true, filename = "page.tsx"
     }
   };
 
-  const codeContent = children ? formatCode(children) : data;
+  const codeContent = typeof children === 'string' ? formatCode(children) : data;
+  const hasStringContent = typeof children === 'string' || url;
+  const showCopy = hasStringContent;
+  const displayTitle = title || (type === 'terminal' ? 'Terminal' : filename);
 
   return (
-    <div className="border bg-black w-full h-fit my-1 overflow-x-auto max-w-full">
+    <div className={`bg-black w-full h-fit ${className || ''}`}>
 
       {/* Titlebar */}
-      <div className="border-b p-1 flex items-center justify-between">
-        <span className="text-grey ml-4">{type === 'terminal' ? 'Terminal' : filename}</span>
-        {copy && (
-          <Button
-            onClick={handleCopy}
-            variant="icon"
-            className="ml-4"
-          >
-            <Icon
-              name={copied ? "tick-02" : "copy-01"}
-              style="sharp"
-              color="white"
-              stroke="2"
-              className="w-4 group-hover:invert"
-            />
-          </Button>
-        )}
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-white">{displayTitle}</p>
+        <div className="flex items-center gap-4">
+          {subtitle && <p className="text-grey">{subtitle}</p>}
+          {showCopy && (
+            <Button
+              onClick={handleCopy}
+              variant="icon"
+              className="-m-2"
+            >
+              <Icon
+                name={copied ? "tick-02" : "copy-01"}
+                style="sharp"
+                color="white"
+                stroke="2"
+                className="w-4 group-hover:invert"
+              />
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Code */}
-      <pre className="p-5 overflow-x-auto">
-        <code className="font text-white">
-          {renderCodeWithLineNumbers(codeContent)}
-        </code>
-      </pre>
+      {/* Content */}
+      {hasStringContent ? (
+        <pre className="p-4 overflow-x-auto scrollbar-hide border">
+          <code className="font text-white relaitve">
+            {renderCodeWithLineNumbers(codeContent)}
+          </code>
+        </pre>
+      ) : (
+        <div className="p-2.5 border">
+          {children}
+        </div>
+      )}
 
     </div>
   );

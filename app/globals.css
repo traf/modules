@@ -22,4 +22,10 @@
   .border-l { @apply border-l-2 border-dashed border-neutral-800; }
   .border-t { @apply border-t-2 border-dashed border-neutral-800; }
   .border-b { @apply border-b-2 border-dashed border-neutral-800; }
+  .scrollbar-hide { 
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { 
+    display: none; 
+  }
 }

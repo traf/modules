@@ -9,7 +9,7 @@ interface ButtonProps {
 }
 
 export default function Button({ href, children, className = '', target, onClick, variant = 'secondary', disabled = false }: ButtonProps) {
-  const baseClasses = 'flex items-center font cursor-pointer group disabled:cursor-not-allowed p-2';
+  const baseClasses = 'flex items-center justify-center font cursor-pointer group disabled:cursor-not-allowed p-2';
 
   const variantClasses = {
     primary: '',

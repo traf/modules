@@ -8,6 +8,7 @@
 - Use Next.JS best practices when building & Tailwind for styling
 - Remove all AI generated slop, including extra comments humans wouldn't add
 - Always use our own components within the app when applicable
+- CHECK FOR LINTER ERRORS AFTER CHANGING ANY CODE
 
 ## Components
 - We're starting with an icon component
