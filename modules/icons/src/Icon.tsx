@@ -13,9 +13,6 @@ export interface IconProps {
     size?: number | string;
 }
 
-// Cache for loaded SVG content
-const svgCache = new Map<string, string>();
-
 export function Icon({
     name,
     color = 'currentColor',
@@ -42,15 +39,8 @@ export function Icon({
         return iconName;
     }, [name, set, style]);
 
-    const cacheKey = `${set}/${iconKey}?color=${color}&stroke=${stroke || ''}`;
-
     useEffect(() => {
         const loadSvg = async () => {
-            if (svgCache.has(cacheKey)) {
-                setSvgContent(svgCache.get(cacheKey)!);
-                return;
-            }
-
             setError(false);
 
             try {
@@ -62,22 +52,21 @@ export function Icon({
                 if (stroke) params.set('stroke', stroke);
 
                 const url = `https://icons.modul.es/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
-                const response = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+                const response = await fetch(url, { mode: 'cors' });
 
                 if (response.ok) {
                     const svg = await response.text();
-                    svgCache.set(cacheKey, svg);
                     setSvgContent(svg);
                 } else {
                     setError(true);
                 }
-            } catch (err) {
+            } catch {
                 setError(true);
             }
         };
 
         loadSvg();
-    }, [cacheKey, color, stroke, set, iconKey]);
+    }, [color, stroke, set, iconKey]);
 
     const processedSvg = useMemo(() => {
         if (!svgContent) return null;

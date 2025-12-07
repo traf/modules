@@ -15,7 +15,7 @@ interface DropdownProps {
   placeholder?: string;
 }
 
-export default function Dropdown({ items, value, onChange, placeholder = 'Select...' }: DropdownProps) {
+export default function Dropdown({ items, value, onChange, placeholder = 'Select' }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

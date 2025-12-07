@@ -40,8 +40,6 @@ exports.Icon = Icon;
 var jsx_runtime_1 = require("react/jsx-runtime");
 var react_1 = require("react");
 var colors_1 = require("./colors");
-// Cache for loaded SVG content
-var svgCache = new Map();
 function Icon(_a) {
     var _this = this;
     var name = _a.name, _b = _a.color, color = _b === void 0 ? 'currentColor' : _b, stroke = _a.stroke, style = _a.style, _c = _a.set, set = _c === void 0 ? 'huge' : _c, _d = _a.className, className = _d === void 0 ? "w-6 select-none" : _d, size = _a.size;
@@ -57,21 +55,16 @@ function Icon(_a) {
         }
         return iconName;
     }, [name, set, style]);
-    var cacheKey = "".concat(set, "/").concat(iconKey, "?color=").concat(color, "&stroke=").concat(stroke || '');
     (0, react_1.useEffect)(function () {
         var loadSvg = function () { return __awaiter(_this, void 0, void 0, function () {
-            var params, colorValue, url, response, svg, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var params, colorValue, url, response, svg, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (svgCache.has(cacheKey)) {
-                            setSvgContent(svgCache.get(cacheKey));
-                            return [2 /*return*/];
-                        }
                         setError(false);
-                        _a.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, , 7]);
+                        _b.trys.push([1, 6, , 7]);
                         params = new URLSearchParams();
                         if (color !== 'currentColor') {
                             colorValue = (0, colors_1.resolveColor)(color).replace('#', '');
@@ -80,22 +73,21 @@ function Icon(_a) {
                         if (stroke)
                             params.set('stroke', stroke);
                         url = "https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
-                        return [4 /*yield*/, fetch(url, { mode: 'cors', cache: 'force-cache' })];
+                        return [4 /*yield*/, fetch(url, { mode: 'cors' })];
                     case 2:
-                        response = _a.sent();
+                        response = _b.sent();
                         if (!response.ok) return [3 /*break*/, 4];
                         return [4 /*yield*/, response.text()];
                     case 3:
-                        svg = _a.sent();
-                        svgCache.set(cacheKey, svg);
+                        svg = _b.sent();
                         setSvgContent(svg);
                         return [3 /*break*/, 5];
                     case 4:
                         setError(true);
-                        _a.label = 5;
+                        _b.label = 5;
                     case 5: return [3 /*break*/, 7];
                     case 6:
-                        err_1 = _a.sent();
+                        _a = _b.sent();
                         setError(true);
                         return [3 /*break*/, 7];
                     case 7: return [2 /*return*/];
@@ -103,7 +95,7 @@ function Icon(_a) {
             });
         }); };
         loadSvg();
-    }, [cacheKey, color, stroke, set, iconKey]);
+    }, [color, stroke, set, iconKey]);
     var processedSvg = (0, react_1.useMemo)(function () {
         if (!svgContent)
             return null;

@@ -150,23 +150,15 @@ export default function IconsPage() {
       {/* Left Sidebar - Controls and Code */}
       <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 border-r lg:overflow-y-auto">
 
-        <Icon name="android-logo" set="phosphor" color="white" className="w-9" />
+        {/* <Icon name="android-logo" set="phosphor" color="white" className="w-9" /> */}
 
         {/* Search */}
         <Input
           ref={searchInputRef}
-          label="Icon search"
+          label="Search"
           placeholder="home, activity, window"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-        />
-
-        {/* Color */}
-        <Input
-          label="Icon color"
-          placeholder="#0066ff, sky-500, neutral-400"
-          value={selectedColor}
-          onChange={(e) => setSelectedColor(e.target.value)}
         />
 
         {/* Set */}
@@ -181,23 +173,6 @@ export default function IconsPage() {
             onTabChange={setSelectedSet}
           />
         </div>
-
-        {/* Stroke */}
-        {selectedSet !== 'phosphor' && selectedSet !== 'pixelart' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-white">Stroke width</p>
-            <Tabs
-              items={[
-                { id: '1', label: '1' },
-                { id: '1.5', label: '1.5' },
-                { id: '2', label: '2' },
-                { id: '2.5', label: '2.5' }
-              ]}
-              activeTab={selectedStroke}
-              onTabChange={setSelectedStroke}
-            />
-          </div>
-        )}
 
         {/* Style */}
         {selectedSet === 'phosphor' && (
@@ -217,6 +192,36 @@ export default function IconsPage() {
             />
           </div>
         )}
+
+        {/* Color and Stroke Width */}
+        <div className="flex gap-4">
+          {/* Color */}
+          <div className="flex-1">
+            <Input
+              label="Color"
+              placeholder="#0066ff, sky-500"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+            />
+          </div>
+
+          {/* Stroke */}
+          {selectedSet !== 'phosphor' && selectedSet !== 'pixelart' && (
+            <div className="w-32 flex flex-col gap-3">
+              <p className="text-white">Stroke</p>
+              <Dropdown
+                items={[
+                  { id: '1', label: '1' },
+                  { id: '1.5', label: '1.5' },
+                  { id: '2', label: '2' },
+                  { id: '2.5', label: '2.5' }
+                ]}
+                value={selectedStroke}
+                onChange={setSelectedStroke}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Copy Mode */}
         <div className="flex flex-col gap-3">
