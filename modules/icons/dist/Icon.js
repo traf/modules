@@ -57,7 +57,7 @@ function Icon(_a) {
         }
         return iconName;
     }, [name, set, style]);
-    var cacheKey = "".concat(set, "/").concat(iconKey);
+    var cacheKey = "".concat(set, "/").concat(iconKey, "?color=").concat(color, "&stroke=").concat(stroke || '');
     (0, react_1.useEffect)(function () {
         var loadSvg = function () { return __awaiter(_this, void 0, void 0, function () {
             var params, colorValue, url, response, svg, err_1;

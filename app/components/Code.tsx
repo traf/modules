@@ -9,9 +9,10 @@ interface CodeProps {
   children?: string;
   copy?: boolean;
   filename?: string;
+  type?: 'code' | 'terminal';
 }
 
-export default function Code({ url, children, copy = true, filename = "page.tsx" }: CodeProps) {
+export default function Code({ url, children, copy = true, filename = "page.tsx", type = 'code' }: CodeProps) {
   const [data, setData] = useState<string>('{ "Loading": "True" }');
   const [copied, setCopied] = useState(false);
 
@@ -36,8 +37,8 @@ export default function Code({ url, children, copy = true, filename = "page.tsx"
     const lines = code.split('\n');
     return lines.map((line, index) => (
       <div key={index} className="flex leading-loose">
-        <span className="text-grey select-none pr-8 text-right">
-          {index + 1}
+        <span className="text-grey select-none pr-6 text-right">
+          {type === 'terminal' ? '%' : index + 1}
         </span>
         <span
           className="text-white"
@@ -61,11 +62,11 @@ export default function Code({ url, children, copy = true, filename = "page.tsx"
   const codeContent = children ? formatCode(children) : data;
 
   return (
-    <div className="border bg-black w-fit my-1 overflow-x-auto max-w-full">
+    <div className="border bg-black w-full h-fit my-1 overflow-x-auto max-w-full">
 
       {/* Titlebar */}
       <div className="border-b p-1 flex items-center justify-between">
-        <span className="text-grey ml-4">{filename}</span>
+        <span className="text-grey ml-4">{type === 'terminal' ? 'Terminal' : filename}</span>
         {copy && (
           <Button
             onClick={handleCopy}

@@ -42,7 +42,7 @@ export function Icon({
         return iconName;
     }, [name, set, style]);
 
-    const cacheKey = `${set}/${iconKey}`;
+    const cacheKey = `${set}/${iconKey}?color=${color}&stroke=${stroke || ''}`;
 
     useEffect(() => {
         const loadSvg = async () => {

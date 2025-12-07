@@ -1,6 +1,6 @@
 {
   "name": "@modul-es/icons",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Icon component system",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,5 +31,6 @@
     "directory": "modules/icons"
   },
   "keywords": ["react", "icons", "components", "modules"],
-  "author": "@traf"
+  "author": "@traf",
+  "homepage": "https://modul.es"
 }

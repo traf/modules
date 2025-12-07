@@ -9,12 +9,19 @@ import Section from './Section';
 const iconSets = {
   huge: ['home-01', 'analytics-01', 'signature', 'code-folder', 'qr-code-01', 'browser', 'checkmark-badge-02', 'chat-feedback', 'dollar-02', 'zap', 'victory-finger-02', 'square-lock-password'],
   phosphor: ['house', 'chart-bar', 'signature', 'folder', 'qr-code', 'browser', 'check-circle', 'chat-circle', 'currency-dollar', 'lightning', 'hand-peace', 'lock'],
-  pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock'],
-  lucide: ['house', 'activity', 'pencil', 'folder', 'qr-code', 'monitor', 'circle-check', 'message-circle', 'dollar-sign', 'zap', 'heart', 'lock']
+  lucide: ['house', 'activity', 'pencil', 'folder', 'qr-code', 'monitor', 'circle-check', 'message-circle', 'dollar-sign', 'zap', 'heart', 'lock'],
+  pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock']
+};
+
+const colors = {
+  'white': 'white',
+  '#06f': '#06f',
+  'slate-400': 'slate-400'
 };
 
 export default function SectionIcons() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
+  const [selectedColor, setSelectedColor] = useState<string>('white');
 
   return (
     <Section id="icon" title="icon.module" description="Icon component system" className="!pb-40">
@@ -25,35 +32,54 @@ export default function SectionIcons() {
           <div key={`${selectedSet}-${iconName}`} className="flex items-center justify-center w-full p-6 aspect-square">
             <Icon
               name={iconName}
-              set={selectedSet as 'huge' | 'pixelart' | 'phosphor' | 'lucide'}
-              color="white"
+              set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
+              color={selectedColor}
               className="w-8"
+              key={`${selectedSet}-${iconName}-${selectedColor}`}
             />
           </div>
         ))}
       </div>
 
-      {/* Set Selector */}
-      <div className="flex -mx-1.5 w-full">
-        {Object.keys(iconSets).map(setName => (
-          <Button
-            key={setName}
-            onClick={() => setSelectedSet(setName)}
-            variant={selectedSet === setName ? 'primary' : 'ghost'}
-          >
-            {setName}
-          </Button>
-        ))}
+      {/* Set & Color Selectors */}
+      <div className="flex -mx-1.5 w-full justify-between">
+        <div className="flex">
+          {Object.keys(iconSets).map(setName => (
+            <Button
+              key={setName}
+              onClick={() => setSelectedSet(setName)}
+              variant={selectedSet === setName ? 'primary' : 'ghost'}
+            >
+              {setName}
+            </Button>
+          ))}
+        </div>
+        <div className="flex">
+          {Object.keys(colors).map(colorName => (
+            <Button
+              key={colorName}
+              onClick={() => setSelectedColor(colorName)}
+              variant={selectedColor === colorName ? 'primary' : 'ghost'}
+            >
+              {colorName}
+            </Button>
+          ))}
+        </div>
       </div>
 
-      <Code>
-        {
-          `import { Icon } from '@modul-es/icons';
+      <div className="flex gap-4">
+        <Code type="terminal">{`npm install @modul-es/icons`}</Code>
 
-<Icon set="${selectedSet}" name="home-01" color="white" stroke="1.5" />
+        <Code>
+          {`
+          import { Icon } from '@modul-es/icons';
+
+<Icon set="${selectedSet}" name="home-01" color="${selectedColor}" stroke="1.5" />
 
 `}
-      </Code>
+        </Code>
+      </div>
+
 
     </Section>
   );
