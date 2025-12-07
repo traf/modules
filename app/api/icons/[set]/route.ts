@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { keywordMap } from '../keywords';
 
-let iconCache: Record<string, string[]> = {};
+const iconCache: Record<string, string[]> = {};
 
 function searchIcons(iconNames: string[], query: string): string[] {
   if (!query.trim()) return iconNames;
@@ -66,7 +66,7 @@ export async function GET(
     try {
       const files = await readdir(iconsDir);
       
-      let iconNames = files
+      const iconNames = files
         .filter(file => file.endsWith('.svg'))
         .map(file => file.replace('.svg', ''))
         .filter(name => !name.includes('.'))
