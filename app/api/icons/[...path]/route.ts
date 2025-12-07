@@ -39,6 +39,8 @@ function applyPhosphorColor(svg: string, resolvedColor: string): string {
     // Clean up any interfering hardcoded fills (keep fill="none")
     modified = modified.replace(/fill="#[a-fA-F0-9]{6}"/g, 'fill="none"')
     modified = modified.replace(/fill="#[a-fA-F0-9]{3}"/g, 'fill="none"')
+    // Handle standalone elements without stroke/fill attributes (like android eyes)
+    modified = modified.replace(/<(circle|ellipse|rect|polygon|path|line|polyline)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, `<$1 fill="${resolvedColor}"$2>`)
     return modified
   }
 
@@ -58,6 +60,8 @@ function applyHugeColor(svg: string, resolvedColor: string): string {
     // Also replace hardcoded stroke colors
     modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
     modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
+    // Handle standalone elements without stroke/fill attributes
+    modified = modified.replace(/<(circle|ellipse|rect|polygon|path|line|polyline)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, `<$1 stroke="${resolvedColor}"$2>`)
     return modified
   }
 
@@ -85,6 +89,8 @@ function applyLucideColor(svg: string, resolvedColor: string): string {
     // Also replace any hardcoded stroke colors
     modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
     modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
+    // Handle standalone elements without stroke/fill attributes
+    modified = modified.replace(/<(circle|ellipse|rect|polygon|path|line|polyline)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, `<$1 stroke="${resolvedColor}"$2>`)
     return modified
   }
 
