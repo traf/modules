@@ -51,12 +51,8 @@ export function Icon({
                 }
                 if (stroke) params.set('stroke', stroke);
 
-                const isDev = typeof window !== 'undefined' && 
-                    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-                
-                const baseUrl = isDev ? '' : 'https://modul.es';
-                const url = `${baseUrl}/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
-                const response = await fetch(url, isDev ? {} : { mode: 'cors' });
+                const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+                const response = await fetch(url, { mode: 'cors' });
 
                 if (response.ok) {
                     const svg = await response.text();

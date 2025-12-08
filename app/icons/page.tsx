@@ -18,6 +18,53 @@ const iconSets = {
 
 const ICONS_PER_LOAD = 80;
 
+function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, copiedIcon, copyMode, onClick }: {
+  iconName: string;
+  selectedSet: string;
+  validColor: string;
+  selectedStroke: string;
+  selectedStyle: string;
+  copiedIcon: string;
+  copyMode: string;
+  onClick: (iconName: string) => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [iconName, selectedSet, validColor, selectedStroke, selectedStyle]);
+
+  return (
+    <button
+      className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0"
+      onClick={() => onClick(iconName)}
+    >
+      {!loaded && <Loader />}
+      <Icon
+        name={iconName}
+        set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
+        color={validColor}
+        stroke={selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? selectedStroke : undefined}
+        style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
+        className="w-9"
+        key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}`}
+      />
+      <img
+        src={`https://modul.es/api/icons/${selectedSet}/${iconName}.svg`}
+        style={{ display: 'none' }}
+        onLoad={() => setLoaded(true)}
+        alt=""
+      />
+
+      {copiedIcon === iconName && (
+        <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
+          Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'component'}
+        </p>
+      )}
+    </button>
+  );
+}
+
 export default function IconsPage() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -319,28 +366,17 @@ export default function IconsPage() {
           ) : (
             <>
               {filteredIcons.map((iconName, index) => (
-                <button
+                <IconBox
                   key={`${selectedSet}-${iconName}-${index}`}
-                  className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0"
-                  onClick={() => handleIconClick(iconName)}
-                >
-                  <Icon
-                    name={iconName}
-                    set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
-                    color={validColor}
-                    stroke={selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? selectedStroke : undefined}
-                    style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
-                    className="w-9"
-                    key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}`}
-                  />
-
-                  {/* Copy feedback */}
-                  {copiedIcon === iconName && (
-                    <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
-                      Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'component'}
-                    </p>
-                  )}
-                </button>
+                  iconName={iconName}
+                  selectedSet={selectedSet}
+                  validColor={validColor}
+                  selectedStroke={selectedStroke}
+                  selectedStyle={selectedStyle}
+                  copiedIcon={copiedIcon}
+                  copyMode={copyMode}
+                  onClick={handleIconClick}
+                />
               ))}
             </>
           )}
