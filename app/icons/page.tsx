@@ -47,9 +47,11 @@ export default function IconsPage() {
         // Silently fail
       }
     } else if (copyMode === 'svg') {
+      setCopiedIcon(iconName);
+      setTimeout(() => setCopiedIcon(''), 1000);
+      
       try {
-        // Fetch the SVG from the CDN with current settings
-        let url = `https://icons.modul.es/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
+        let url = `/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
         if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
           url += `&stroke=${encodeURIComponent(selectedStroke)}`;
         }
@@ -57,8 +59,6 @@ export default function IconsPage() {
         if (response.ok) {
           const svgContent = await response.text();
           await navigator.clipboard.writeText(svgContent);
-          setCopiedIcon(iconName);
-          setTimeout(() => setCopiedIcon(''), 1000);
         }
       } catch {
         // Silently fail
