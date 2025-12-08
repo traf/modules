@@ -2,6 +2,14 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.1.5] - 2024-12-08
+
+### Added
+- Localhost support for local development (auto-detects localhost/127.0.0.1)
+
+### Changed
+- Removed console error logs for cleaner output
+
 ## [0.1.4] - 2024-12-08
 
 ### Changed
