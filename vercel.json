@@ -26,14 +26,5 @@
     "app/api/icons/[...path]/route.ts": {
       "maxDuration": 10
     }
-  },
-  "security": {
-    "botProtection": {
-      "excludeRules": [
-        {
-          "pathname": "/api/icons/*"
-        }
-      ]
-    }
   }
 }

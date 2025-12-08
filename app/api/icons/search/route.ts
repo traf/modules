@@ -8,66 +8,63 @@ function searchIcons(iconNames: string[], query: string): string[] {
 
   const lowerQuery = query.toLowerCase();
   const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
-  
-  const allTerms = new Set<string>();
-  
-  allTerms.add(lowerQuery);
-  
-  for (const word of queryWords) {
-    allTerms.add(word);
-    const keywords = keywordMap[word] || [];
-    keywords.forEach(k => allTerms.add(k));
-  }
 
   const scored = iconNames
     .map(iconName => {
       const lowerName = iconName.toLowerCase();
+      const nameParts = lowerName.split(/[-_]/);
       let score = 0;
       let matchedWords = 0;
 
+      // Check if all query words match
       for (const word of queryWords) {
+        let wordMatched = false;
         const wordKeywords = keywordMap[word] || [];
-        const wordTerms = [word, ...wordKeywords];
-        
+        const wordTerms = [word, ...wordKeywords.slice(0, 3)]; // Limit keywords to first 3
+
         for (const term of wordTerms) {
-          if (lowerName.includes(term)) {
-            matchedWords++;
+          if (lowerName.includes(term) || nameParts.some(part => part === term || part.startsWith(term))) {
+            wordMatched = true;
             break;
           }
-          
-          const nameParts = lowerName.split(/[-_]/);
-          for (const part of nameParts) {
-            if (part.includes(term)) {
-              matchedWords++;
-              break;
-            }
-          }
         }
+
+        if (wordMatched) matchedWords++;
       }
 
-      if (matchedWords === queryWords.length) {
-        score += 1000 * matchedWords;
+      // Only include icons where ALL query words matched
+      if (matchedWords < queryWords.length) {
+        return { iconName, score: 0 };
       }
 
-      for (const term of Array.from(allTerms)) {
-        if (lowerName === term) {
-          score = Math.max(score, 1000);
-        } else if (lowerName.startsWith(term)) {
-          score = Math.max(score, 900);
-        } else if (lowerName.includes(term)) {
-          score = Math.max(score, 800);
-        } else {
-          const nameParts = lowerName.split(/[-_]/);
-          for (const part of nameParts) {
-            if (part === term) {
-              score = Math.max(score, 700);
-            } else if (part.startsWith(term)) {
-              score = Math.max(score, 600);
-            } else if (part.includes(term)) {
-              score = Math.max(score, 500);
-            }
-          }
-        }
+      // Score based on match quality
+      // Exact full match
+      if (lowerName === lowerQuery || lowerName === lowerQuery.replace(/\s+/g, '-')) {
+        score = 10000;
+      }
+      // Full query appears in name
+      else if (lowerName.includes(lowerQuery.replace(/\s+/g, '-'))) {
+        score = 9000;
+      }
+      // All words appear as separate parts
+      else if (queryWords.every(word => nameParts.includes(word))) {
+        score = 8000;
+      }
+      // All words appear somewhere
+      else if (queryWords.every(word => lowerName.includes(word))) {
+        score = 7000;
+      }
+      // Mixed matches with keywords
+      else {
+        score = 5000;
+      }
+
+      // Bonus for shorter names (more specific)
+      score -= lowerName.length * 10;
+
+      // Bonus if name starts with first query word
+      if (lowerName.startsWith(queryWords[0])) {
+        score += 1000;
       }
 
       return { iconName, score };

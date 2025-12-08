@@ -51,18 +51,20 @@ export function Icon({
                 }
                 if (stroke) params.set('stroke', stroke);
 
-                const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
-                const response = await fetch(url, { mode: 'cors' });
+                const isDev = typeof window !== 'undefined' && 
+                    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+                
+                const baseUrl = isDev ? '' : 'https://modul.es';
+                const url = `${baseUrl}/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+                const response = await fetch(url, isDev ? {} : { mode: 'cors' });
 
                 if (response.ok) {
                     const svg = await response.text();
                     setSvgContent(svg);
                 } else {
-                    console.error(`Failed to load icon: ${set}/${iconKey} - Status: ${response.status}`);
                     setError(true);
                 }
-            } catch (err) {
-                console.error(`Error loading icon: ${set}/${iconKey}`, err);
+            } catch {
                 setError(true);
             }
         };
