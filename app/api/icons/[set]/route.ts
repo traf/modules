@@ -3,8 +3,6 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { keywordMap } from '../keywords';
 
-const iconCache: Record<string, string[]> = {};
-
 function searchIcons(iconNames: string[], query: string): string[] {
   if (!query.trim()) return iconNames;
 
@@ -72,11 +70,7 @@ export async function GET(
         .filter(name => !name.includes('.'))
         .sort();
 
-      if (!iconCache[set]) {
-        iconCache[set] = iconNames;
-      }
-
-      const results = searchIcons(iconCache[set], query);
+      const results = searchIcons(iconNames, query);
 
       return NextResponse.json(results);
     } catch {
