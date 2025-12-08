@@ -182,7 +182,7 @@ export default function IconsPage() {
 
         {/* Set */}
         <div className="flex flex-col gap-3">
-          <p className="text-white">Icon set</p>
+          <p className="text-white">Set</p>
           <Tabs
             items={Object.keys(iconSets).map(setName => ({
               id: setName,
@@ -192,25 +192,6 @@ export default function IconsPage() {
             onTabChange={setSelectedSet}
           />
         </div>
-
-        {/* Style */}
-        {selectedSet === 'phosphor' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-white">Style</p>
-            <Dropdown
-              items={[
-                { id: '', label: 'Regular' },
-                { id: 'thin', label: 'Thin' },
-                { id: 'light', label: 'Light' },
-                { id: 'bold', label: 'Bold' },
-                { id: 'fill', label: 'Fill' },
-                { id: 'duotone', label: 'Duotone' }
-              ]}
-              value={selectedStyle}
-              onChange={setSelectedStyle}
-            />
-          </div>
-        )}
 
         {/* Color and Stroke Width */}
         <div className="flex gap-4">
@@ -226,7 +207,7 @@ export default function IconsPage() {
 
           {/* Stroke */}
           {selectedSet !== 'phosphor' && selectedSet !== 'pixelart' && (
-            <div className="w-32 flex flex-col gap-3">
+            <div className="w-36 flex flex-col gap-3">
               <p className="text-white">Stroke</p>
               <Dropdown
                 items={[
@@ -240,6 +221,26 @@ export default function IconsPage() {
               />
             </div>
           )}
+
+          {/* Style */}
+          {selectedSet === 'phosphor' && (
+            <div className="w-36 flex flex-col gap-3">
+              <p className="text-white">Style</p>
+              <Dropdown
+                items={[
+                  { id: '', label: 'Regular' },
+                  { id: 'thin', label: 'Thin' },
+                  { id: 'light', label: 'Light' },
+                  { id: 'bold', label: 'Bold' },
+                  { id: 'fill', label: 'Fill' },
+                  { id: 'duotone', label: 'Duotone' }
+                ]}
+                value={selectedStyle}
+                onChange={setSelectedStyle}
+              />
+            </div>
+          )}
+
         </div>
 
         {/* Copy Mode */}
@@ -277,12 +278,26 @@ export default function IconsPage() {
               }`}
           >
             <div className="p-6 pt-6 flex flex-col gap-6">
+
+              {/* Code */}
               <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
               <Code title="Usage">
                 {`import { Icon } from '@modul-es/icons';
 
 <Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''} />`}
               </Code>
+
+              {/* Props */}
+              {/* <div className="flex flex-col gap-6">
+                <p className="text-white">Props</p>
+                <div className="flex gap-2">
+                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Set</div>
+                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Color</div>
+                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Stroke</div>
+                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Style</div>
+                </div>
+              </div> */}
+
             </div>
           </div>
         </div>
