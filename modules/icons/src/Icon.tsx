@@ -51,7 +51,7 @@ export function Icon({
                 }
                 if (stroke) params.set('stroke', stroke);
 
-                const url = `https://icons.modul.es/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+                const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
                 const response = await fetch(url, { mode: 'cors' });
 
                 if (response.ok) {

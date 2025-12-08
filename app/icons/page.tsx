@@ -88,7 +88,7 @@ export default function IconsPage() {
       setIsLoading(true);
       setDisplayCount(ICONS_PER_LOAD);
       try {
-        const url = `/api/icons/${selectedSet}${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`;
+        const url = `/api/icons/search?set=${selectedSet}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`;
         const response = await fetch(url);
         if (response.ok) {
           const icons = await response.json();

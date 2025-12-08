@@ -57,14 +57,14 @@ function Icon(_a) {
     }, [name, set, style]);
     (0, react_1.useEffect)(function () {
         var loadSvg = function () { return __awaiter(_this, void 0, void 0, function () {
-            var params, colorValue, cdnUrl, response, localUrl, svg, _a;
+            var params, colorValue, url, response, svg, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         setError(false);
                         _b.label = 1;
                     case 1:
-                        _b.trys.push([1, 8, , 9]);
+                        _b.trys.push([1, 6, , 7]);
                         params = new URLSearchParams();
                         if (color !== 'currentColor') {
                             colorValue = (0, colors_1.resolveColor)(color).replace('#', '');
@@ -72,32 +72,25 @@ function Icon(_a) {
                         }
                         if (stroke)
                             params.set('stroke', stroke);
-                        cdnUrl = "https://icons.modul.es/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
-                        return [4 /*yield*/, fetch(cdnUrl, { mode: 'cors' })];
+                        url = "https://modul.es/api/icons/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
+                        return [4 /*yield*/, fetch(url, { mode: 'cors' })];
                     case 2:
                         response = _b.sent();
-                        if (!!response.ok) return [3 /*break*/, 4];
-                        localUrl = "/api/icons/".concat(set, "/").concat(iconKey, ".svg").concat(params.toString() ? "?".concat(params.toString()) : '');
-                        return [4 /*yield*/, fetch(localUrl)];
-                    case 3:
-                        response = _b.sent();
-                        _b.label = 4;
-                    case 4:
-                        if (!response.ok) return [3 /*break*/, 6];
+                        if (!response.ok) return [3 /*break*/, 4];
                         return [4 /*yield*/, response.text()];
-                    case 5:
+                    case 3:
                         svg = _b.sent();
                         setSvgContent(svg);
-                        return [3 /*break*/, 7];
-                    case 6:
+                        return [3 /*break*/, 5];
+                    case 4:
                         setError(true);
-                        _b.label = 7;
-                    case 7: return [3 /*break*/, 9];
-                    case 8:
+                        _b.label = 5;
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
                         _a = _b.sent();
                         setError(true);
-                        return [3 /*break*/, 9];
-                    case 9: return [2 /*return*/];
+                        return [3 /*break*/, 7];
+                    case 7: return [2 /*return*/];
                 }
             });
         }); };

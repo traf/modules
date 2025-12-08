@@ -45,25 +45,22 @@ function searchIcons(iconNames: string[], query: string): string[] {
   return scored;
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ set: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const { set } = await params;
     const { searchParams } = new URL(request.url);
+    const set = searchParams.get('set') || '';
     const query = searchParams.get('q') || '';
-    
+
     const validSets = ['huge', 'phosphor', 'lucide', 'pixelart'];
     if (!validSets.includes(set)) {
       return NextResponse.json({ error: 'Invalid icon set' }, { status: 400 });
     }
 
     const iconsDir = join(process.cwd(), 'public', 'icons', set);
-    
+
     try {
       const files = await readdir(iconsDir);
-      
+
       const iconNames = files
         .filter(file => file.endsWith('.svg'))
         .map(file => file.replace('.svg', ''))
