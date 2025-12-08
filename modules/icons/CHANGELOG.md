@@ -2,6 +2,12 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.1.4] - 2024-12-08
+
+### Changed
+- Simplified CDN to use `modul.es/api/icons/` directly instead of subdomain
+- Removed unnecessary rewrite complexity from infrastructure
+
 ## [0.1.3] - 2024-12-07
 
 ### Fixed

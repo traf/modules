@@ -93,3 +93,78 @@ export function getClientIP(request: { headers: { get: (name: string) => string 
   if (remoteAddr) return remoteAddr;
   return 'unknown';
 }
+
+// API route wrapper
+export interface ApiRouteConfig {
+  cacheName: string;
+  rateLimit: RateLimitConfig;
+  cache: CacheConfig;
+}
+
+export function createApiRoute<T>(
+  config: ApiRouteConfig,
+  handler: (cacheKey: string) => Promise<T | null>
+) {
+  const cache = getCache(config.cacheName, config.cache);
+
+  return async (request: { headers: { get: (name: string) => string | null } }, cacheKey: string) => {
+    const clientIP = getClientIP(request);
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(clientIP, config.rateLimit);
+    const rateLimitHeaders = {
+      'X-RateLimit-Limit': config.rateLimit.maxRequests.toString(),
+      'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
+      'X-RateLimit-Reset': new Date(rateLimitResult.resetTime!).toISOString()
+    };
+
+    if (!rateLimitResult.allowed) {
+      return {
+        status: 429,
+        error: 'Rate limit exceeded',
+        headers: rateLimitHeaders
+      };
+    }
+
+    // Check cache
+    if (config.cache.enabled) {
+      const cached = cache.get(cacheKey);
+      if (cached) {
+        return {
+          status: 200,
+          data: cached,
+          headers: { ...rateLimitHeaders, 'X-Cache': 'HIT' }
+        };
+      }
+    }
+
+    try {
+      const result = await handler(cacheKey);
+
+      if (!result) {
+        return {
+          status: 404,
+          error: 'Not found',
+          headers: rateLimitHeaders
+        };
+      }
+
+      // Cache result
+      if (config.cache.enabled) {
+        cache.set(cacheKey, result);
+      }
+
+      return {
+        status: 200,
+        data: result,
+        headers: { ...rateLimitHeaders, 'X-Cache': 'MISS' }
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        error: error instanceof Error ? error.message : 'Internal server error',
+        headers: rateLimitHeaders
+      };
+    }
+  };
+}
