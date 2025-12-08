@@ -7,15 +7,49 @@ function searchIcons(iconNames: string[], query: string): string[] {
   if (!query.trim()) return iconNames;
 
   const lowerQuery = query.toLowerCase();
-  const keywords = keywordMap[lowerQuery] || [];
-  const allTerms = [lowerQuery, ...keywords];
+  const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
+  
+  const allTerms = new Set<string>();
+  
+  allTerms.add(lowerQuery);
+  
+  for (const word of queryWords) {
+    allTerms.add(word);
+    const keywords = keywordMap[word] || [];
+    keywords.forEach(k => allTerms.add(k));
+  }
 
   const scored = iconNames
     .map(iconName => {
       const lowerName = iconName.toLowerCase();
       let score = 0;
+      let matchedWords = 0;
 
-      for (const term of allTerms) {
+      for (const word of queryWords) {
+        const wordKeywords = keywordMap[word] || [];
+        const wordTerms = [word, ...wordKeywords];
+        
+        for (const term of wordTerms) {
+          if (lowerName.includes(term)) {
+            matchedWords++;
+            break;
+          }
+          
+          const nameParts = lowerName.split(/[-_]/);
+          for (const part of nameParts) {
+            if (part.includes(term)) {
+              matchedWords++;
+              break;
+            }
+          }
+        }
+      }
+
+      if (matchedWords === queryWords.length) {
+        score += 1000 * matchedWords;
+      }
+
+      for (const term of Array.from(allTerms)) {
         if (lowerName === term) {
           score = Math.max(score, 1000);
         } else if (lowerName.startsWith(term)) {

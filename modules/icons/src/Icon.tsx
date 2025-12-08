@@ -58,9 +58,11 @@ export function Icon({
                     const svg = await response.text();
                     setSvgContent(svg);
                 } else {
+                    console.error(`Failed to load icon: ${set}/${iconKey} - Status: ${response.status}`);
                     setError(true);
                 }
-            } catch {
+            } catch (err) {
+                console.error(`Error loading icon: ${set}/${iconKey}`, err);
                 setError(true);
             }
         };

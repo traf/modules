@@ -265,11 +265,10 @@ export default function IconsPage() {
           >
             <span className="text-white font-medium">Installation</span>
             <Icon
-              name="arrow-down-01"
+              name={isInstallOpen ? 'arrow-down-01' : 'arrow-up-01'}
               set="huge"
               color="neutral-500"
               style="sharp"
-              className={`${isInstallOpen ? 'rotate-180' : ''}`}
             />
           </button>
 
