@@ -46,7 +46,7 @@ export default function Dropdown({ items, value, onChange, placeholder = 'Select
           <Icon 
             name="arrow-down-01" 
             set="huge"
-            color="white"
+            color="neutral-500"
             style="sharp"
             className={`${isOpen ? 'rotate-180' : ''}`}
           />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Icon } from '@modules/icons';
 import { resolveColor } from '@modules/icons/src/colors';
 import Code from '../components/Code';
@@ -16,6 +16,7 @@ const iconSets = {
   pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock', 'user', 'search', 'mail', 'calendar', 'bookmark', 'download', 'cloud', 'image']
 };
 
+const ICONS_PER_LOAD = 80;
 
 export default function IconsPage() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
@@ -25,11 +26,14 @@ export default function IconsPage() {
   const [selectedIcon, setSelectedIcon] = useState<string>('home-01');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allIcons, setAllIcons] = useState<Record<string, string[]>>({});
+  const [displayCount, setDisplayCount] = useState<number>(ICONS_PER_LOAD);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedIcon, setCopiedIcon] = useState<string>('');
   const [copyMode, setCopyMode] = useState<string>('name');
   const [isInstallOpen, setIsInstallOpen] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const isLoadingMoreRef = useRef<boolean>(false);
 
   const handleIconClick = async (iconName: string) => {
     setSelectedIcon(iconName);
@@ -82,6 +86,7 @@ export default function IconsPage() {
   useEffect(() => {
     const loadIcons = async () => {
       setIsLoading(true);
+      setDisplayCount(ICONS_PER_LOAD);
       try {
         const url = `/api/icons/${selectedSet}${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`;
         const response = await fetch(url);
@@ -98,6 +103,38 @@ export default function IconsPage() {
 
     loadIcons();
   }, [selectedSet, searchQuery]);
+
+  // Infinite scroll handler
+  const handleScroll = useCallback(() => {
+    if (!gridRef.current || isLoading || isLoadingMoreRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = gridRef.current;
+
+    if (scrollTop + clientHeight >= scrollHeight - 500) {
+      const cacheKey = `${selectedSet}-${searchQuery}`;
+      const totalIcons = allIcons[cacheKey]?.length || 0;
+
+      setDisplayCount(prev => {
+        if (prev < totalIcons) {
+          isLoadingMoreRef.current = true;
+          const newCount = Math.min(prev + ICONS_PER_LOAD, totalIcons);
+          setTimeout(() => {
+            isLoadingMoreRef.current = false;
+          }, 100);
+          return newCount;
+        }
+        return prev;
+      });
+    }
+  }, [isLoading, selectedSet, searchQuery, allIcons]);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    grid.addEventListener('scroll', handleScroll);
+    return () => grid.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   // Autofocus on mount only
   useEffect(() => {
@@ -125,22 +162,14 @@ export default function IconsPage() {
   const filteredIcons = useMemo(() => {
     const cacheKey = `${selectedSet}-${searchQuery}`;
     const currentSetIcons = allIcons[cacheKey] || [];
-
-    const icons: (string | null)[] = currentSetIcons.slice(0, 48);
-
-    const paddedIcons = [...icons];
-    while (paddedIcons.length < 48) {
-      paddedIcons.push(null);
-    }
-
-    return paddedIcons;
-  }, [selectedSet, searchQuery, allIcons]);
+    return currentSetIcons.slice(0, displayCount);
+  }, [selectedSet, searchQuery, allIcons, displayCount]);
 
   return (
-    <div className="w-full flex flex-col lg:flex-row items-start justify-start h-full">
+    <div className="w-full h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
 
       {/* Left Sidebar - Controls and Code */}
-      <div className="w-full lg:w-[440px] h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r lg:overflow-y-auto relative">
+      <div className="w-full lg:w-[440px] flex-shrink-0 h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r overflow-hidden relative">
 
         {/* Search */}
         <Input
@@ -228,7 +257,7 @@ export default function IconsPage() {
         </div>
 
         {/* Fixed bottom installation panel */}
-        <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t border-r border-neutral-800 z-50">
+        <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t z-50">
           <button
             onClick={() => setIsInstallOpen(!isInstallOpen)}
             className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900"
@@ -237,18 +266,17 @@ export default function IconsPage() {
             <Icon
               name="arrow-down-01"
               set="huge"
-              color="white"
+              color="neutral-500"
               style="sharp"
-              className={`w-5 transition-transform ${isInstallOpen ? 'rotate-180' : ''}`}
+              className={`${isInstallOpen ? 'rotate-180' : ''}`}
             />
           </button>
 
           <div
-            className={`overflow-hidden transition-all duration-200 ${
-              isInstallOpen ? 'max-h-96' : 'max-h-0'
-            }`}
+            className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-96' : 'max-h-0'
+              }`}
           >
-            <div className="p-6 pt-4 flex flex-col gap-6">
+            <div className="p-6 pt-6 flex flex-col gap-6">
               <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
               <Code title="Usage">
                 {`import { Icon } from '@modul-es/icons';
@@ -262,22 +290,26 @@ export default function IconsPage() {
       </div>
 
       {/* Right Side - Icon Grid */}
-      <div className="w-full flex-1 bg-black grid grid-cols-4 lg:grid-cols-8 lg:grid-rows-6 h-fit lg:h-full">
-        {isLoading ? (
-          Array.from({ length: 48 }).map((_, index) => (
-            <div key={index} className="flex items-center justify-center border-r border-b border-neutral-800 last:border-r-0 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0 [&:nth-child(n+45)]:border-b-0 lg:[&:nth-child(n+41)]:border-b-0">
-              <Loader />
-            </div>
-          ))
-        ) : (
-          filteredIcons.map((iconName, index) => (
-            <button
-              key={`${selectedSet}-${iconName}-${index}`}
-              className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square lg:aspect-auto border-r border-b border-neutral-800 last:border-r-0 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0 [&:nth-child(n+45)]:border-b-0 lg:[&:nth-child(n+41)]:border-b-0"
-              onClick={() => iconName && handleIconClick(iconName)}
-            >
-              {iconName && (
-                <>
+      <div
+        ref={gridRef}
+        className="w-full lg:flex-1 lg:h-full bg-black overflow-y-auto"
+      >
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-8 auto-rows-auto">
+
+          {isLoading && displayCount === ICONS_PER_LOAD ? (
+            Array.from({ length: ICONS_PER_LOAD }).map((_, index) => (
+              <div key={index} className="flex items-center justify-center aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0">
+                <Loader />
+              </div>
+            ))
+          ) : (
+            <>
+              {filteredIcons.map((iconName, index) => (
+                <button
+                  key={`${selectedSet}-${iconName}-${index}`}
+                  className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0"
+                  onClick={() => handleIconClick(iconName)}
+                >
                   <Icon
                     name={iconName}
                     set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
@@ -290,15 +322,15 @@ export default function IconsPage() {
 
                   {/* Copy feedback */}
                   {copiedIcon === iconName && (
-                      <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
-                        Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'component'}
-                      </p>
+                    <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
+                      Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'component'}
+                    </p>
                   )}
-                </>
-              )}
-            </button>
-          ))
-        )}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
