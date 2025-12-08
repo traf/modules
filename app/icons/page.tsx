@@ -16,7 +16,7 @@ const iconSets = {
   pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock', 'user', 'search', 'mail', 'calendar', 'bookmark', 'download', 'cloud', 'image']
 };
 
-const ICONS_PER_LOAD = 80;
+const ICONS_PER_LOAD = 48;
 
 function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, copiedIcon, copyMode, onClick }: {
   iconName: string;
@@ -28,18 +28,11 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
   copyMode: string;
   onClick: (iconName: string) => void;
 }) {
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setLoaded(false);
-  }, [iconName, selectedSet, validColor, selectedStroke, selectedStyle]);
-
   return (
     <button
       className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0"
       onClick={() => onClick(iconName)}
     >
-      {!loaded && <Loader />}
       <Icon
         name={iconName}
         set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
@@ -48,12 +41,6 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
         style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
         className="w-9"
         key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}`}
-      />
-      <img
-        src={`https://modul.es/api/icons/${selectedSet}/${iconName}.svg`}
-        style={{ display: 'none' }}
-        onLoad={() => setLoaded(true)}
-        alt=""
       />
 
       {copiedIcon === iconName && (
@@ -94,11 +81,8 @@ export default function IconsPage() {
         // Silently fail
       }
     } else if (copyMode === 'svg') {
-      setCopiedIcon(iconName);
-      setTimeout(() => setCopiedIcon(''), 1000);
-      
       try {
-        let url = `/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
+        let url = `https://modul.es/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
         if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
           url += `&stroke=${encodeURIComponent(selectedStroke)}`;
         }
@@ -106,6 +90,8 @@ export default function IconsPage() {
         if (response.ok) {
           const svgContent = await response.text();
           await navigator.clipboard.writeText(svgContent);
+          setCopiedIcon(iconName);
+          setTimeout(() => setCopiedIcon(''), 1000);
         }
       } catch {
         // Silently fail
@@ -292,7 +278,7 @@ export default function IconsPage() {
 
         {/* Copy Mode */}
         <div className="flex flex-col gap-3">
-          <p className="text-white">Copy method</p>
+          <p className="text-white">Copy</p>
           <Tabs
             items={[
               { id: 'name', label: 'Icon name' },

@@ -73,6 +73,7 @@ export const keywordMap: Record<string, string[]> = {
   map: ['location', 'navigate', 'direction', 'place', 'compass'],
   pin: ['location', 'marker', 'map', 'tack'],
   share: ['export'],
+  loader: ['loading', 'progress', 'spinner'],
   send: ['share', 'forward', 'mail', 'arrow'],
   cloud: ['sync', 'backup', 'storage', 'upload', 'saving', 'weather'],
   sync: ['refresh', 'reload', 'update', 'cloud', 'rotate'],
