@@ -2,6 +2,17 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.1.7] - 2024-12-09
+
+### Added
+- Size presets: `xs` (16px), `sm` (20px), `md` (24px), `lg` (32px), `xl` (40px)
+
+### Changed
+- className now applies to SVG element instead of wrapper div for proper Tailwind support
+- Height set to auto to maintain aspect ratio when width is overridden
+- Default size changed to `md` (24px)
+- Removed unnecessary inline-block and imageRendering styles from wrapper
+
 ## [0.1.6] - 2024-12-08
 
 ### Changed

@@ -2,6 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { resolveColor } from './colors'
 
 export type IconSet = 'huge' | 'pixelart' | 'phosphor' | 'lucide';
+export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+const SIZE_MAP: Record<IconSize, number> = {
+    xs: 16,
+    sm: 20,
+    md: 24,
+    lg: 32,
+    xl: 40
+};
 
 export interface IconProps {
     name: string;
@@ -10,7 +19,7 @@ export interface IconProps {
     style?: 'sharp' | 'default' | 'fill' | 'thin' | 'light' | 'bold' | 'duotone';
     set?: IconSet;
     className?: string;
-    size?: number | string;
+    size?: IconSize | number | string;
 }
 
 export function Icon({
@@ -19,8 +28,8 @@ export function Icon({
     stroke,
     style,
     set = 'huge',
-    className = "w-6 select-none",
-    size
+    className,
+    size = 'md'
 }: IconProps) {
     const [svgContent, setSvgContent] = useState<string | null>(null);
     const [error, setError] = useState(false);
@@ -71,19 +80,26 @@ export function Icon({
     const processedSvg = useMemo(() => {
         if (!svgContent) return null;
 
+        const iconSize = typeof size === 'string' && size in SIZE_MAP 
+            ? SIZE_MAP[size as IconSize]
+            : typeof size === 'number' 
+            ? size 
+            : 24;
+
         let svg = svgContent;
 
         svg = svg.replace(/<\?xml[^>]*\?>/g, '');
         svg = svg.replace(/<!--[\s\S]*?-->/g, '');
 
-        svg = svg.replace(/<svg([^>]*)\s(?:width|height)="[^"]*"([^>]*)>/gi, '<svg$1$2>');
-        if (size) {
-            svg = svg.replace(/<svg([^>]*)>/i, `<svg$1 width="${size}" height="${size}">`);
-        }
-
         svg = svg.replace(/<svg([^>]*)>/i, (match, attrs) => {
             let newAttrs = attrs;
-            if (!newAttrs.includes('class=')) {
+            
+            newAttrs = newAttrs.replace(/\s(?:width|height)="[^"]*"/gi, '');
+            
+            newAttrs += ` width="${iconSize}" style="height: auto;"`;
+
+            if (className) {
+                newAttrs = newAttrs.replace(/\sclass="[^"]*"/gi, '');
                 newAttrs += ` class="${className}"`;
             }
 
@@ -105,6 +121,6 @@ export function Icon({
     }
 
     return (
-        <div style={{ imageRendering: 'crisp-edges' }} dangerouslySetInnerHTML={{ __html: processedSvg }} />
+        <div dangerouslySetInnerHTML={{ __html: processedSvg }} />
     );
 }

@@ -18,19 +18,20 @@ const iconSets = {
 
 const ICONS_PER_LOAD = 48;
 
-function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, copiedIcon, copyMode, onClick }: {
+function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, selectedSize, copiedIcon, copyMode, onClick }: {
   iconName: string;
   selectedSet: string;
   validColor: string;
   selectedStroke: string;
   selectedStyle: string;
+  selectedSize: string;
   copiedIcon: string;
   copyMode: string;
   onClick: (iconName: string) => void;
 }) {
   return (
     <button
-      className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800 [&:nth-child(4n)]:border-r-0 lg:[&:nth-child(4n)]:border-r lg:[&:nth-child(8n)]:border-r-0"
+      className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square"
       onClick={() => onClick(iconName)}
     >
       <Icon
@@ -39,8 +40,8 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
         color={validColor}
         stroke={selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? selectedStroke : undefined}
         style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
-        className="w-9"
-        key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}`}
+        size={selectedSize as 'xs' | 'sm' | 'md' | 'lg' | 'xl'}
+        key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}-${selectedSize}`}
       />
 
       {copiedIcon === iconName && (
@@ -57,6 +58,7 @@ export default function IconsPage() {
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedStroke, setSelectedStroke] = useState<string>('1.5');
   const [selectedStyle, setSelectedStyle] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>('lg');
   const [selectedIcon, setSelectedIcon] = useState<string>('home-01');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allIcons, setAllIcons] = useState<Record<string, string[]>>({});
@@ -104,6 +106,9 @@ export default function IconsPage() {
         }
         if (selectedSet === 'phosphor' && selectedStyle) {
           componentCode += ` style="${selectedStyle}"`;
+        }
+        if (selectedSize !== 'md') {
+          componentCode += ` size="${selectedSize}"`;
         }
         componentCode += ` />`;
         await navigator.clipboard.writeText(componentCode);
@@ -199,7 +204,7 @@ export default function IconsPage() {
   }, [selectedSet, searchQuery, allIcons, displayCount]);
 
   return (
-    <div className="w-full h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
+    <div className="w-full h-auto lg:h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
 
       {/* Left Sidebar - Controls and Code */}
       <div className="w-full lg:w-[440px] flex-shrink-0 h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r overflow-hidden relative">
@@ -276,6 +281,22 @@ export default function IconsPage() {
 
         </div>
 
+        {/* Size */}
+        <div className="flex flex-col gap-3">
+          <p className="text-white">Size</p>
+          <Tabs
+            items={[
+              { id: 'xs', label: 'XS' },
+              { id: 'sm', label: 'SM' },
+              { id: 'md', label: 'MD' },
+              { id: 'lg', label: 'LG' },
+              { id: 'xl', label: 'XL' }
+            ]}
+            activeTab={selectedSize}
+            onTabChange={setSelectedSize}
+          />
+        </div>
+
         {/* Copy Mode */}
         <div className="flex flex-col gap-3">
           <p className="text-white">Copy</p>
@@ -316,7 +337,7 @@ export default function IconsPage() {
               <Code title="Usage">
                 {`import { Icon } from '@modul-es/icons';
 
-<Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''} />`}
+<Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''}${selectedSize !== 'md' ? ` size="${selectedSize}"` : ''} />`}
               </Code>
 
               {/* Props */}
@@ -341,7 +362,7 @@ export default function IconsPage() {
         ref={gridRef}
         className="w-full lg:flex-1 lg:h-full bg-black overflow-y-auto"
       >
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-8 auto-rows-auto">
+        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 auto-rows-auto divide-x-2 divide-y-2 divide-neutral-800 divide-dashed">
 
           {isLoading && displayCount === ICONS_PER_LOAD ? (
             Array.from({ length: ICONS_PER_LOAD }).map((_, index) => (
@@ -359,6 +380,7 @@ export default function IconsPage() {
                   validColor={validColor}
                   selectedStroke={selectedStroke}
                   selectedStyle={selectedStyle}
+                  selectedSize={selectedSize}
                   copiedIcon={copiedIcon}
                   copyMode={copyMode}
                   onClick={handleIconClick}

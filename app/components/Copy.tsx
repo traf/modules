@@ -9,7 +9,6 @@ interface CopyProps {
   className?: string;
   variant?: 'primary' | 'secondary' | 'icon' | 'ghost';
   children?: React.ReactNode;
-  iconSize?: string;
 }
 
 export default function Copy({ 
@@ -17,7 +16,6 @@ export default function Copy({
   className = '', 
   variant = 'icon', 
   children,
-  iconSize = 'w-4'
 }: CopyProps) {
   const [copied, setCopied] = useState(false);
 
@@ -43,7 +41,8 @@ export default function Copy({
           set="huge"
           color="white"
           style="sharp"
-          className={`${iconSize} group-hover:invert`}
+          size="xs"
+          className="group-hover:invert"
         />
       )}
     </Button>

@@ -66,7 +66,7 @@ export default function Code({ url, children, filename = "page.tsx", type, title
           {showCopy && (
             <Copy
               text={textToCopy}
-              className="-m-2"
+              className="-mx-1.5"
             />
           )}
         </div>
