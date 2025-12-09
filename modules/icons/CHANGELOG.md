@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.1.9] - 2024-12-09
+
+### Fixed
+- Fixed `className` being rendered as lowercase `classname` in HTML - now properly uses `class` in HTML string which browsers handle correctly
+
 ## [0.1.8] - 2024-12-09
 
 ### Fixed
