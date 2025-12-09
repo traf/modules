@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.1.8] - 2024-12-09
+
+### Fixed
+- Fixed `class` attribute not being converted to `className` in rendered SVG, causing React warnings and styling issues
+
 ## [0.1.7] - 2024-12-09
 
 ### Added

@@ -100,7 +100,7 @@ export function Icon({
 
             if (className) {
                 newAttrs = newAttrs.replace(/\sclass="[^"]*"/gi, '');
-                newAttrs += ` class="${className}"`;
+                newAttrs += ` className="${className}"`;
             }
 
             if (set !== 'phosphor' && set !== 'lucide' && !newAttrs.includes('fill=')) {
@@ -112,6 +112,8 @@ export function Icon({
             }
             return `<svg${newAttrs}>`;
         });
+
+        svg = svg.replace(/\sclass=/g, ' className=');
 
         return svg.trim();
     }, [svgContent, size, className, set]);
