@@ -189,7 +189,7 @@ export default function IconsPage() {
 
     try {
       const resolved = resolveColor(selectedColor);
-      if (/^#[0-9A-Fa-f]{3,6}$/.test(resolved)) {
+      if (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(resolved)) {
         setValidColor(selectedColor);
       }
     } catch {
@@ -238,7 +238,7 @@ export default function IconsPage() {
           <div className="flex-1">
             <Input
               label="Color"
-              placeholder="#0066ff, sky-500"
+              placeholder="#0066ff, sky-600"
               value={selectedColor}
               onChange={(e) => setSelectedColor(e.target.value)}
             />
