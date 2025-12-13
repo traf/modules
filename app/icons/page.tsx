@@ -56,6 +56,7 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
 export default function IconsPage() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
   const [selectedColor, setSelectedColor] = useState<string>('');
+  const [validColor, setValidColor] = useState<string>('white');
   const [selectedStroke, setSelectedStroke] = useState<string>('1.5');
   const [selectedStyle, setSelectedStyle] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('lg');
@@ -179,20 +180,20 @@ export default function IconsPage() {
     searchInputRef.current?.focus();
   }, []);
 
-  // Validate color input
-  const validColor = useMemo(() => {
-    if (!selectedColor.trim()) return 'white';
+  // Validate color input and update validColor only when valid
+  useEffect(() => {
+    if (!selectedColor.trim()) {
+      setValidColor('white');
+      return;
+    }
 
     try {
-      // Use resolveColor to validate and convert the color
       const resolved = resolveColor(selectedColor);
-      // If resolveColor returns a hex color, the input was valid
       if (/^#[0-9A-Fa-f]{3,6}$/.test(resolved)) {
-        return selectedColor; // Return original input for the Icon component
+        setValidColor(selectedColor);
       }
-      return 'white';
     } catch {
-      return 'white'; // Default to white for invalid colors
+      // Keep previous valid color
     }
   }, [selectedColor]);
 
@@ -327,7 +328,7 @@ export default function IconsPage() {
           </button>
 
           <div
-            className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-96' : 'max-h-0'
+            className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-[600px]' : 'max-h-0'
               }`}
           >
             <div className="p-6 pt-6 flex flex-col gap-6">
@@ -341,15 +342,16 @@ export default function IconsPage() {
               </Code>
 
               {/* Props */}
-              {/* <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-5">
                 <p className="text-white">Props</p>
                 <div className="flex gap-2">
-                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Set</div>
-                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Color</div>
-                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Stroke</div>
-                  <div className="flex items-center justify-center bg-neutral-900 border px-2 py-1">Style</div>
+                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Set</div>
+                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Color</div>
+                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Size</div>
+                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Style</div>
+                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Stroke</div>
                 </div>
-              </div> */}
+              </div>
 
             </div>
           </div>
