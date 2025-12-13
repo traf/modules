@@ -5,13 +5,20 @@ import { resolveColor } from '@modules/icons/src/colors'
 
 function normalizeStandaloneElements(svg: string, iconPath: string): string {
   const [iconSet] = iconPath.split('/')
+  let modified = svg
+
+  // Replace hardcoded colors with currentColor for all icon sets
+  modified = modified.replace(/fill="#[a-fA-F0-9]{6}"/g, 'fill="currentColor"')
+  modified = modified.replace(/fill="#[a-fA-F0-9]{3}"/g, 'fill="currentColor"')
+  modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, 'stroke="currentColor"')
+  modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, 'stroke="currentColor"')
   
   // For stroke-based icon sets (phosphor, huge, lucide), add fill="currentColor" to standalone elements
   if (iconSet === 'phosphor' || iconSet === 'huge' || iconSet === 'lucide') {
-    return svg.replace(/<(circle|ellipse)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, '<$1 fill="currentColor"$2>')
+    modified = modified.replace(/<(circle|ellipse)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, '<$1 fill="currentColor"$2>')
   }
   
-  return svg
+  return modified
 }
 
 function applyColorByIconSet(svg: string, iconPath: string, resolvedColor: string): string {
@@ -65,23 +72,24 @@ function applyPhosphorColor(svg: string, resolvedColor: string): string {
 }
 
 function applyHugeColor(svg: string, resolvedColor: string): string {
-  // Huge icons typically use stroke-based coloring
-  if (/stroke="(?!none)[^"]*"/.test(svg)) {
-    let modified = svg.replace(/stroke="(?!none)[^"]*"/g, `stroke="${resolvedColor}"`)
-    // Also replace hardcoded stroke colors
-    modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
-    modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
-    // Handle standalone elements without stroke/fill attributes
+  let modified = svg
+
+  // Replace hardcoded fill colors (except "none")
+  modified = modified.replace(/fill="#[a-fA-F0-9]{6}"/g, `fill="${resolvedColor}"`)
+  modified = modified.replace(/fill="#[a-fA-F0-9]{3}"/g, `fill="${resolvedColor}"`)
+  
+  // Replace hardcoded stroke colors (except "none")
+  modified = modified.replace(/stroke="#[a-fA-F0-9]{6}"/g, `stroke="${resolvedColor}"`)
+  modified = modified.replace(/stroke="#[a-fA-F0-9]{3}"/g, `stroke="${resolvedColor}"`)
+
+  // Handle standalone elements without stroke/fill attributes
+  if (/stroke="(?!none)[^"]*"/.test(modified)) {
     modified = modified.replace(/<(circle|ellipse|rect|polygon|path|line|polyline)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, `<$1 stroke="${resolvedColor}"$2>`)
-    return modified
+  } else if (/fill="(?!none)[^"]*"/.test(modified)) {
+    modified = modified.replace(/<(circle|ellipse|rect|polygon|path|line|polyline)(?![^>]*fill=)(?![^>]*stroke=)([^>]*)>/g, `<$1 fill="${resolvedColor}"$2>`)
   }
 
-  // Some huge icons use fill
-  if (/fill="(?!none)[^"]*"/.test(svg)) {
-    return svg.replace(/fill="(?!none)[^"]*"/g, `fill="${resolvedColor}"`)
-  }
-
-  return applyGenericColor(svg, resolvedColor)
+  return modified
 }
 
 function applyPixelartColor(svg: string, resolvedColor: string): string {

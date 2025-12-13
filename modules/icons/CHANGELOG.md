@@ -2,6 +2,20 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.1] - 2025-12-13
+
+### Fixed
+- Fixed hardcoded colors in SVG files not being replaced with currentColor or custom colors globally across all icon sets
+
+## [0.2.0] - 2025-12-13
+
+### Changed
+- Updated README with improved examples and documentation
+- Added MIT license to package.json
+
+### Fixed
+- Resolved npm installation issues from 0.1.9 tarball
+
 ## [0.1.9] - 2024-12-09
 
 ### Fixed
