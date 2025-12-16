@@ -4,17 +4,18 @@ import { Icon } from '@modules/icons';
 interface InputProps {
   type?: string;
   placeholder?: string;
-  value: string;
+  value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   label?: string;
   id?: string;
   name?: string;
   onClear?: () => void;
+  prefix?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", placeholder, value, onChange, className = "", label, id, name, onClear }, ref) => {
+  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix }, ref) => {
     const inputId = id || name || placeholder?.toLowerCase().replace(/\s+/g, '-');
     const internalRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +34,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="flex flex-col gap-3">
         {label && <label htmlFor={inputId} className="text-white">{label}</label>}
         <div className="relative w-full">
+          {prefix && (
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white pointer-events-none">
+              {prefix}
+            </span>
+          )}
           <input
             ref={internalRef}
             id={inputId}
@@ -41,7 +47,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            className={`w-full h-14 px-4 bg-transparent text-white placeholder:text-grey outline-none border ${value ? 'pr-12' : ''} ${className}`}
+            className={`w-full h-14 bg-transparent text-white placeholder:text-grey outline-none border ${prefix ? 'pl-[calc(1rem+var(--prefix-width))]' : 'px-4'} ${value ? 'pr-12' : prefix ? 'pr-4' : ''} ${className}`}
+            style={prefix ? { '--prefix-width': `${prefix.length * 10}px` } as React.CSSProperties : undefined}
           />
           {value && (
             <button

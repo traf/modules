@@ -89,10 +89,35 @@ export default function IconsPage() {
         if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
           url += `&stroke=${encodeURIComponent(selectedStroke)}`;
         }
+        if (selectedSet === 'phosphor' && selectedStyle) {
+          url = `https://modul.es/api/icons/${selectedSet}/${iconName}.${selectedStyle}.svg?color=${encodeURIComponent(validColor)}`;
+        }
+        if (selectedSet === 'huge' && selectedStyle === 'sharp') {
+          url = `https://modul.es/api/icons/${selectedSet}/${iconName}.sharp.svg?color=${encodeURIComponent(validColor)}&stroke=${encodeURIComponent(selectedStroke)}`;
+        }
         const response = await fetch(url);
         if (response.ok) {
-          const svgContent = await response.text();
-          await navigator.clipboard.writeText(svgContent);
+          let svgContent = await response.text();
+          
+          const sizeMap: Record<string, number> = { xs: 16, sm: 20, md: 24, lg: 32, xl: 40 };
+          const iconSize = sizeMap[selectedSize] || 24;
+          
+          svgContent = svgContent.replace(/<\?xml[^>]*\?>/g, '');
+          svgContent = svgContent.replace(/<!--[\s\S]*?-->/g, '');
+          svgContent = svgContent.replace(/<svg([^>]*)>/i, (match, attrs) => {
+            let newAttrs = attrs;
+            newAttrs = newAttrs.replace(/\s(?:width|height)="[^"]*"/gi, '');
+            newAttrs += ` width="${iconSize}" style="height: auto;"`;
+            if (selectedSet !== 'phosphor' && selectedSet !== 'lucide' && !newAttrs.includes('fill=')) {
+              newAttrs += ` fill="currentColor"`;
+            }
+            if (!newAttrs.includes('shape-rendering=')) {
+              newAttrs += ` shape-rendering="crispEdges"`;
+            }
+            return `<svg${newAttrs}>`;
+          });
+          
+          await navigator.clipboard.writeText(svgContent.trim());
           setCopiedIcon(iconName);
           setTimeout(() => setCopiedIcon(''), 1000);
         }
