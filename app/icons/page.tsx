@@ -107,7 +107,7 @@ export default function IconsPage() {
           svgContent = svgContent.replace(/<svg([^>]*)>/i, (match, attrs) => {
             let newAttrs = attrs;
             newAttrs = newAttrs.replace(/\s(?:width|height)="[^"]*"/gi, '');
-            newAttrs += ` width="${iconSize}" style="height: auto;"`;
+            newAttrs += ` width="${iconSize}" height="${iconSize}"`;
             if (selectedSet !== 'phosphor' && selectedSet !== 'lucide' && !newAttrs.includes('fill=')) {
               newAttrs += ` fill="currentColor"`;
             }
