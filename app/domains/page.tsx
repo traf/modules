@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Input from '../components/Input';
 import { Icon } from '@modules/icons';
@@ -8,7 +8,6 @@ import Tabs from '../components/Tabs';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
 import { formatPrice, formatDate } from '../lib/utils';
-import { useScrolled } from '../lib/hooks';
 
 interface DomainResult {
   domain: string;
@@ -46,7 +45,7 @@ interface WhoisData {
   registrant_organization?: string;
 }
 
-export default function DomainsPage() {
+function DomainsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState<string>(searchParams.get('q') || '');
@@ -63,7 +62,6 @@ export default function DomainsPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const isScrolled = useScrolled(sidebarRef);
 
   const handleSearch = useCallback(async () => {
     if (!query.trim()) return;
@@ -72,6 +70,12 @@ export default function DomainsPage() {
     setStatuses({});
 
     try {
+      // Check if query already looks like a complete domain (contains a dot)
+      const isCompleteDomain = query.includes('.');
+      
+      // Extract the base name (subdomain part before first dot if complete domain, otherwise the whole query)
+      const baseName = isCompleteDomain ? query.split('.')[0] : query;
+      
       const commonTLDs = [
         // 2-letter
         'ae', 'af', 'ai', 'be', 'cc', 'co', 'es', 'fi', 'fm', 'gg', 'im', 'io', 'is', 'me', 're', 'sh',
@@ -81,10 +85,10 @@ export default function DomainsPage() {
         'agency', 'black', 'blog', 'cafe', 'cash', 'chat', 'cloud', 'computer', 'design', 'digital', 'directory', 'game', 'games', 'link', 'money', 'network', 'page', 'pizza', 'shop', 'site', 'space', 'store', 'studio', 'tech', 'website', 'world'
       ];
       const commonDomains: DomainResult[] = commonTLDs.map(tld => ({
-        domain: `${query.toLowerCase()}.${tld}`,
-        subdomain: query.toLowerCase(),
+        domain: `${baseName.toLowerCase()}.${tld}`,
+        subdomain: baseName.toLowerCase(),
         zone: tld,
-        registerURL: `https://www.namecheap.com/domains/registration/results/?domain=${query.toLowerCase()}.${tld}`
+        registerURL: `https://www.namecheap.com/domains/registration/results/?domain=${baseName.toLowerCase()}.${tld}`
       }));
 
       let fastlyDomains: DomainResult[] = [];
@@ -95,7 +99,17 @@ export default function DomainsPage() {
           fastlyDomains = (data.results || data.domains || data || [])
             .filter((d: DomainResult) => /^[a-z0-9.-]+$/i.test(d.domain))
             .filter((d: DomainResult) => !d.domain.endsWith('.quebec'))
-            .filter((d: DomainResult) => d.subdomain && d.subdomain.length > 0);
+            .filter((d: DomainResult) => d.subdomain && d.subdomain.length > 0)
+            .filter((d: DomainResult) => {
+              // If searching for a complete domain, filter out double TLD results
+              // e.g., searching "swish.dev" should not show "swish.dev.be"
+              if (isCompleteDomain) {
+                const parts = d.domain.split('.');
+                // Only show domains with 2 parts (name.tld), not 3+ parts (name.tld.tld2)
+                return parts.length === 2;
+              }
+              return true;
+            });
         }
       } catch (error) {
         console.error('Fastly API unavailable, showing common TLDs only:', error);
@@ -143,7 +157,7 @@ export default function DomainsPage() {
             // API returned error, set fallback status
             setStatuses(prev => ({ ...prev, [result.domain]: { domain: result.domain, status: 'unknown', zone: result.zone } }));
           }
-        } catch (error) {
+        } catch {
           // Network error or timeout, set fallback status
           setStatuses(prev => ({ ...prev, [result.domain]: { domain: result.domain, status: 'unknown', zone: result.zone } }));
         }
@@ -470,5 +484,13 @@ export default function DomainsPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function DomainsPage() {
+  return (
+    <Suspense fallback={<div className="w-full h-full flex items-center justify-center">Loading...</div>}>
+      <DomainsContent />
+    </Suspense>
   );
 }
