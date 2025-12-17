@@ -450,9 +450,9 @@ function DomainsContent() {
                     <div className="h-3 bg-neutral-900 w-1/2" />
                     <div className="h-3 bg-neutral-900 w-2/3" />
                   </div>
-                ) : whoisError ? (
+                ) : whoisError || !whoisData || (!whoisData.registrar && !whoisData.created_date && !whoisData.expiration_date && !whoisData.updated_date && !whoisData.registrant_organization && (!whoisData.name_servers || whoisData.name_servers.length === 0)) ? (
                   <p className="text-grey text-sm">WHOIS data unavailable</p>
-                ) : whoisData ? (
+                ) : (
                   <div className="flex flex-col gap-6">
                     {whoisData.registrar && (
                       <div className="flex flex-col gap-1">
@@ -495,7 +495,7 @@ function DomainsContent() {
                       </div>
                     )}
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
           </div>

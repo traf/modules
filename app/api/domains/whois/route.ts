@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { whoisDomain } from 'whoiser';
 import { checkRateLimit, getClientIP } from '@/app/lib/rateLimit';
-
-const execAsync = promisify(exec);
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -56,34 +53,37 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Escape domain to prevent command injection
-    const escapedDomain = domain.replace(/[^a-z0-9.-]/gi, '');
-    
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('WHOIS lookup timeout')), 5000);
+      setTimeout(() => reject(new Error('WHOIS lookup timeout')), 10000);
     });
 
-    const whoisPromise = execAsync(`whois ${escapedDomain}`);
+    const whoisPromise = whoisDomain(domain, { follow: 2, timeout: 10000 });
     
-    const { stdout } = await Promise.race([whoisPromise, timeoutPromise]);
+    const result = await Promise.race([whoisPromise, timeoutPromise]);
     
-    const registrar = extractField(stdout, ['Registrar:', 'registrar:']);
-    const createdDate = extractField(stdout, ['Creation Date:', 'Created Date:', 'created:']);
-    const expirationDate = extractField(stdout, ['Registry Expiry Date:', 'Expiration Date:', 'Expiry Date:', 'expires:']);
-    const updatedDate = extractField(stdout, ['Updated Date:', 'Last Updated:', 'updated:']);
-    const nameServers = extractNameServers(stdout);
-    const status = extractMultipleFields(stdout, ['Domain Status:', 'status:']);
-    const registrantOrg = extractField(stdout, ['Registrant Organization:', 'Registrant:', 'org:']);
+    const whoisData = result && typeof result === 'object' ? Object.values(result)[0] : null;
+
+    if (!whoisData) {
+      return NextResponse.json(
+        { error: 'WHOIS data not available for this domain' },
+        { status: 404 }
+      );
+    }
+
+    const getValue = (key: string): string | undefined => {
+      const value = whoisData[key];
+      return typeof value === 'string' ? value : Array.isArray(value) ? value[0] : undefined;
+    };
 
     const data = {
       domain,
-      registrar,
-      created_date: createdDate,
-      expiration_date: expirationDate,
-      updated_date: updatedDate,
-      name_servers: nameServers,
-      status,
-      registrant_organization: registrantOrg,
+      registrar: getValue('Registrar') || getValue('registrar'),
+      created_date: getValue('Creation Date') || getValue('Created Date') || getValue('created'),
+      expiration_date: getValue('Registry Expiry Date') || getValue('Expiration Date') || getValue('Expiry Date') || getValue('expires'),
+      updated_date: getValue('Updated Date') || getValue('Last Updated') || getValue('updated'),
+      name_servers: extractNameServersFromData(whoisData),
+      status: extractStatusFromData(whoisData),
+      registrant_organization: getValue('Registrant Organization') || getValue('Registrant') || getValue('org'),
     };
 
     return NextResponse.json(data, {
@@ -106,34 +106,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function extractField(text: string, patterns: string[]): string | undefined {
-  for (const pattern of patterns) {
-    const regex = new RegExp(`${pattern}\\s*(.+)`, 'i');
-    const match = text.match(regex);
-    if (match && match[1]) {
-      return match[1].trim();
-    }
-  }
-  return undefined;
-}
-
-function extractMultipleFields(text: string, patterns: string[]): string[] | undefined {
-  const results: string[] = [];
-  for (const pattern of patterns) {
-    const regex = new RegExp(`${pattern}\\s*(.+)`, 'gi');
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      if (match[1]) {
-        results.push(match[1].trim());
-      }
-    }
-  }
-  return results.length > 0 ? results : undefined;
-}
-
-function extractNameServers(text: string): string[] | undefined {
+function extractNameServersFromData(data: any): string[] | undefined {
   const nameServers: string[] = [];
-  const patterns = ['Name Server:', 'nserver:', 'Nameserver:'];
   const excludePatterns = [
     'gtld-servers',
     'root-servers', 
@@ -141,30 +115,50 @@ function extractNameServers(text: string): string[] | undefined {
     'verisign',
     'icann'
   ];
+
+  const nsFields = ['Name Server', 'nserver', 'Nameserver', 'nameserver'];
   
-  for (const pattern of patterns) {
-    const regex = new RegExp(`${pattern}\\s*(.+)`, 'gi');
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      if (match[1]) {
-        const ns = match[1].trim().toLowerCase();
-        // Only take the domain part, stop at space or IP address
-        const cleanNs = ns.split(/\s+/)[0];
-        
-        // Filter out infrastructure servers and invalid entries
-        const shouldExclude = excludePatterns.some(pattern => cleanNs.includes(pattern)) ||
-                             cleanNs.match(/^\d+\.\d+\.\d+/) || // IPv4
-                             cleanNs.match(/^[0-9a-f:]+$/) || // IPv6
-                             cleanNs.length < 4 || // Too short
-                             !cleanNs.includes('.'); // Must have at least one dot
-        
-        if (!shouldExclude) {
-          nameServers.push(cleanNs);
+  for (const field of nsFields) {
+    const value = data[field];
+    if (value) {
+      const values = Array.isArray(value) ? value : [value];
+      for (const ns of values) {
+        if (typeof ns === 'string') {
+          const cleanNs = ns.trim().toLowerCase().split(/\s+/)[0];
+          
+          const shouldExclude = excludePatterns.some(pattern => cleanNs.includes(pattern)) ||
+                               cleanNs.match(/^\d+\.\d+\.\d+/) || // IPv4
+                               cleanNs.match(/^[0-9a-f:]+$/) || // IPv6
+                               cleanNs.length < 4 ||
+                               !cleanNs.includes('.');
+          
+          if (!shouldExclude) {
+            nameServers.push(cleanNs);
+          }
         }
       }
     }
   }
   
-  // If we didn't find any nameservers with the standard patterns, return undefined
   return nameServers.length > 0 ? [...new Set(nameServers)] : undefined;
+}
+
+function extractStatusFromData(data: any): string[] | undefined {
+  const statusFields = ['Domain Status', 'status', 'Status'];
+  
+  for (const field of statusFields) {
+    const value = data[field];
+    if (value) {
+      const values = Array.isArray(value) ? value : [value];
+      const statuses = values
+        .filter((v: any) => typeof v === 'string' && v.trim().length > 0)
+        .map((v: string) => v.trim());
+      
+      if (statuses.length > 0) {
+        return statuses;
+      }
+    }
+  }
+  
+  return undefined;
 }
