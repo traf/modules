@@ -117,16 +117,35 @@ function DomainsContent() {
 
       const allDomains = [...commonDomains, ...fastlyDomains];
       const uniqueDomains = Array.from(new Map(allDomains.map((d: DomainResult) => [d.domain, d])).values());
-
-      // Sort: exact matches first, then by TLD length, then alphabetically
+      
+      // Sort: exact matches (including domain hacks) first, then priority TLDs, then by TLD length, then alphabetically
       const normalizedQuery = query.toLowerCase().replace(/\s+/g, '');
+      const priorityTLDs = ['com', 'co', 'io'];
+      
       uniqueDomains.sort((a, b) => {
+        // Check if domain exactly matches query
         const isExactA = a.domain === normalizedQuery || a.domain === query.toLowerCase();
         const isExactB = b.domain === normalizedQuery || b.domain === query.toLowerCase();
         
-        if (isExactA && !isExactB) return -1;
-        if (!isExactA && isExactB) return 1;
+        // Check if subdomain + zone forms the query (domain hack)
+        // Strip trailing dot from subdomain before concatenating
+        const isDomainHackA = (a.subdomain.replace(/\.$/, '') + a.zone) === normalizedQuery;
+        const isDomainHackB = (b.subdomain.replace(/\.$/, '') + b.zone) === normalizedQuery;
         
+        const isMatchA = isExactA || isDomainHackA;
+        const isMatchB = isExactB || isDomainHackB;
+        
+        if (isMatchA && !isMatchB) return -1;
+        if (!isMatchA && isMatchB) return 1;
+        
+        // Both are exact matches or both are not, check priority TLDs
+        const isPriorityA = priorityTLDs.includes(a.zone);
+        const isPriorityB = priorityTLDs.includes(b.zone);
+        
+        if (isPriorityA && !isPriorityB) return -1;
+        if (!isPriorityA && isPriorityB) return 1;
+        
+        // Both priority or both not priority, sort by TLD length
         const tldLenA = a.zone.length;
         const tldLenB = b.zone.length;
         
