@@ -7,14 +7,12 @@ import Button from './Button';
 interface CopyProps {
   text: string;
   className?: string;
-  variant?: 'primary' | 'secondary' | 'icon' | 'ghost';
   children?: React.ReactNode;
 }
 
 export default function Copy({ 
   text, 
   className = '', 
-  variant = 'icon', 
   children,
 }: CopyProps) {
   const [copied, setCopied] = useState(false);
@@ -32,7 +30,7 @@ export default function Copy({
   return (
     <Button
       onClick={handleCopy}
-      variant={variant}
+      variant="icon"
       className={className}
     >
       {children || (

@@ -12,10 +12,12 @@ interface InputProps {
   name?: string;
   onClear?: () => void;
   prefix?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  suffix?: React.ReactNode;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix }, ref) => {
+  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix, onKeyDown, suffix }, ref) => {
     const inputId = id || name || placeholder?.toLowerCase().replace(/\s+/g, '-');
     const internalRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     };
 
     return (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full">
         {label && <label htmlFor={inputId} className="text-white">{label}</label>}
         <div className="relative w-full">
           {prefix && (
@@ -47,10 +49,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            className={`w-full h-14 bg-transparent text-white placeholder:text-grey outline-none border ${prefix ? 'pl-[calc(1rem+var(--prefix-width))]' : 'px-4'} ${value ? 'pr-12' : prefix ? 'pr-4' : ''} ${className}`}
+            onKeyDown={onKeyDown}
+            className={`w-full h-14 bg-transparent text-white placeholder:text-grey outline-none border ${prefix ? 'pl-[calc(1rem+var(--prefix-width))]' : 'px-4'} ${value && !suffix ? 'pr-12' : suffix ? 'pr-12' : 'pr-4'} ${className}`}
             style={prefix ? { '--prefix-width': `${prefix.length * 10}px` } as React.CSSProperties : undefined}
           />
-          {value && (
+          {value && !suffix && (
             <button
               type="button"
               onClick={handleClear}
@@ -58,6 +61,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             >
               <Icon set="lucide" name="delete" color="white" stroke="1" className="w-5.5" />
             </button>
+          )}
+          {suffix && (
+            <div className="flex items-center justify-center absolute h-full aspect-square right-0 top-0 pointer-events-none opacity-60">
+              {suffix}
+            </div>
           )}
         </div>
       </div>

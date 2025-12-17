@@ -20,6 +20,13 @@ export default function Nav() {
                 >
                     Icons
                 </Button>
+                <Button 
+                    href="/domains" 
+                    className="h-full" 
+                    variant={pathname === '/domains' ? 'primary' : undefined}
+                >
+                    Domains
+                </Button>
                 <Button href="https://github.com/traf/modules" target="_blank" className="h-full">Github</Button>
                 <Button href="https://x.com/traf" target="_blank" className="h-full">@traf</Button>
             </div>

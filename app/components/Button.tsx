@@ -1,15 +1,17 @@
 interface ButtonProps {
   href?: string;
   children: React.ReactNode;
-  className?: string;
   target?: string;
+  rel?: string;
   onClick?: (e?: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'icon' | 'ghost';
   disabled?: boolean;
+  className?: string;
+  innerClassName?: string;
 }
 
-export default function Button({ href, children, className = '', target, onClick, variant = 'secondary', disabled = false }: ButtonProps) {
-  const baseClasses = 'flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed p-2';
+export default function Button({ href, children, className = '', target, rel, onClick, variant = 'secondary', disabled = false, innerClassName = '' }: ButtonProps) {
+  const baseClasses = 'flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed p-2 whitespace-nowrap';
 
   const variantClasses = {
     primary: '',
@@ -25,13 +27,14 @@ export default function Button({ href, children, className = '', target, onClick
     icon: 'group-hover:bg-white group-hover:text-black p-1',
   }[variant];
 
-  const content = <span className={`${innerClasses}`}>{children}</span>;
+  const content = innerClasses ? <span className={`${innerClasses} ${innerClassName}`}>{children}</span> : children;
 
   if (href) {
     return (
       <a
         href={href}
         target={target}
+        rel={rel}
         className={`${baseClasses} ${variantClasses} ${className}`}
       >
         {content}

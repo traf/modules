@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import Loader from '../components/Loader';
 import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
+import Badge from '../components/Badge';
 
 const iconSets = {
   huge: ['home-01', 'analytics-01', 'signature', 'code-folder', 'qr-code-01', 'browser', 'checkmark-badge-02', 'chat-feedback', 'dollar-02', 'zap', 'victory-finger-02', 'square-lock-password', 'user-02', 'settings-02', 'search-01', 'mail-01', 'calendar-01', 'notification-01', 'image-01', 'download-01'],
@@ -31,7 +32,7 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
 }) {
   return (
     <button
-      className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square"
+      className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800"
       onClick={() => onClick(iconName)}
     >
       <Icon
@@ -341,7 +342,7 @@ export default function IconsPage() {
         <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t z-50">
           <button
             onClick={() => setIsInstallOpen(!isInstallOpen)}
-            className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900"
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5"
           >
             <span className="text-white font-medium">Installation</span>
             <Icon
@@ -370,11 +371,11 @@ export default function IconsPage() {
               <div className="flex flex-col gap-5">
                 <p className="text-white">Props</p>
                 <div className="flex gap-2">
-                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Set</div>
-                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Color</div>
-                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Size</div>
-                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Style</div>
-                  <div className="flex flex-1 items-center justify-center bg-neutral-900 border px-2 py-1">Stroke</div>
+                  <Badge className="flex-1 border">Set</Badge>
+                  <Badge className="flex-1 border">Color</Badge>
+                  <Badge className="flex-1 border">Size</Badge>
+                  <Badge className="flex-1 border">Style</Badge>
+                  <Badge className="flex-1 border">Stroke</Badge>
                 </div>
               </div>
 
