@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { whoisDomain } from 'whoiser';
 import { checkRateLimit, getClientIP } from '@/app/lib/rateLimit';
 
+type WhoisDataRecord = {
+  [key: string]: string | string[] | undefined;
+};
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
@@ -106,7 +110,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function extractNameServersFromData(data: any): string[] | undefined {
+function extractNameServersFromData(data: WhoisDataRecord): string[] | undefined {
   const nameServers: string[] = [];
   const excludePatterns = [
     'gtld-servers',
@@ -143,7 +147,7 @@ function extractNameServersFromData(data: any): string[] | undefined {
   return nameServers.length > 0 ? [...new Set(nameServers)] : undefined;
 }
 
-function extractStatusFromData(data: any): string[] | undefined {
+function extractStatusFromData(data: WhoisDataRecord): string[] | undefined {
   const statusFields = ['Domain Status', 'status', 'Status'];
   
   for (const field of statusFields) {
@@ -151,7 +155,7 @@ function extractStatusFromData(data: any): string[] | undefined {
     if (value) {
       const values = Array.isArray(value) ? value : [value];
       const statuses = values
-        .filter((v: any) => typeof v === 'string' && v.trim().length > 0)
+        .filter((v: string | string[]): v is string => typeof v === 'string' && v.trim().length > 0)
         .map((v: string) => v.trim());
       
       if (statuses.length > 0) {
