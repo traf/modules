@@ -10,7 +10,10 @@ const font = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://modul.es"),
-  title: "Modules",
+  title: {
+    template: "%s Module",
+    default: "Modules"
+  },
   description: "Components && utilities",
   openGraph: {
     type: "website",

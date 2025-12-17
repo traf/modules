@@ -7,7 +7,7 @@ import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
 import { Icon } from '@/modules/icons/src';
 
-export default function QRPage() {
+export default function QRClient() {
   const [data, setData] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('md');
   const [selectedColor, setSelectedColor] = useState<string>('#000000');

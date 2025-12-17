@@ -438,7 +438,11 @@ function DomainsContent() {
             )}
 
             {isSelectedMarketed && (!selectedStatus?.offers || selectedStatus.offers.length === 0) && 
-              renderPurchaseButtons([{ name: 'Afternic', url: `https://www.afternic.com/forsale/${selectedDomain.domain}` }])
+              renderPurchaseButtons([
+                { name: 'Atom', url: `https://www.atom.com/name/${selectedDomain.domain}/rm/domainr` },
+                { name: 'Afternic', url: `https://www.afternic.com/forsale/${selectedDomain.domain}` },
+                { name: 'Sedo', url: `https://sedo.com/search/?keyword=${selectedDomain.domain}` }
+              ])
             }
 
             <div className="flex flex-col gap-4">
@@ -506,7 +510,7 @@ function DomainsContent() {
   );
 }
 
-export default function DomainsPage() {
+export default function DomainsClient() {
   return (
     <Suspense fallback={<div className="w-full h-full flex items-center justify-center">Loading...</div>}>
       <DomainsContent />

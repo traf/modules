@@ -54,7 +54,7 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
   );
 }
 
-export default function IconsPage() {
+export default function IconsClient() {
   const [selectedSet, setSelectedSet] = useState<string>('huge');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [validColor, setValidColor] = useState<string>('white');
