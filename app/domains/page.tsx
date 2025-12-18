@@ -439,7 +439,7 @@ function DomainsContent() {
 
             {isSelectedMarketed && (!selectedStatus?.offers || selectedStatus.offers.length === 0) && 
               renderPurchaseButtons([
-                { name: 'Atom', url: `https://www.atom.com/name/${selectedDomain.domain}/rm/domainr` },
+                { name: 'Atom', url: `https://www.atom.com/premium-domains-for-sale/q/${selectedDomain.domain}` },
                 { name: 'Afternic', url: `https://www.afternic.com/forsale/${selectedDomain.domain}` },
                 { name: 'Sedo', url: `https://sedo.com/search/?keyword=${selectedDomain.domain}` }
               ])
