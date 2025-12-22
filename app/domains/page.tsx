@@ -7,6 +7,13 @@ import { Icon } from '@modules/icons';
 import Tabs from '../components/Tabs';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
+import DetailSidebar from '../components/DetailSidebar';
+import PageSidebar from '../components/PageSidebar';
+import DataField from '../components/DataField';
+import PageContent from '../components/PageContent';
+import PageLayout from '../components/PageLayout';
+import Section from '../components/Section';
+import DividedList from '../components/DividedList';
 import { formatPrice, formatDate } from '../lib/utils';
 
 interface DomainResult {
@@ -53,6 +60,7 @@ function DomainsContent() {
   const [statuses, setStatuses] = useState<Record<string, DomainStatus>>({});
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [tldLengthFilter, setTldLengthFilter] = useState<string>('all');
   const [selectedDomain, setSelectedDomain] = useState<DomainResult | null>(null);
   const [registrars, setRegistrars] = useState<Registrar[]>([]);
   const [whoisData, setWhoisData] = useState<WhoisData | null>(null);
@@ -72,17 +80,17 @@ function DomainsContent() {
     try {
       // Check if query already looks like a complete domain (contains a dot)
       const isCompleteDomain = query.includes('.');
-      
+
       // Extract the base name (subdomain part before first dot if complete domain, otherwise the whole query)
       const baseName = isCompleteDomain ? query.split('.')[0] : query;
-      
+
       const commonTLDs = [
         // 2-letter
-        'ae', 'af', 'ai', 'be', 'cc', 'co', 'es', 'fi', 'fm', 'gg', 'im', 'io', 'is', 'me', 're', 'sh',
+        'ae', 'af', 'ai', 'be', 'cc', 'co', 'es', 'fi', 'fm', 'gg', 'im', 'io', 'is', 'it', 'ly', 'me', 're', 'sh', 'so', 'to', 'tv', 'vc', 'ws',
         // 3-letter
-        'app', 'art', 'bio', 'com', 'dev', 'fun', 'fyi', 'net', 'one', 'xyz',
+        'app', 'art', 'bio', 'com', 'day', 'dev', 'fun', 'fyi', 'lol', 'net', 'new', 'one', 'org', 'run', 'wtf', 'xyz', 'zip',
         // 4+ letters
-        'agency', 'black', 'blog', 'cafe', 'cash', 'chat', 'cloud', 'computer', 'design', 'digital', 'directory', 'game', 'games', 'link', 'money', 'network', 'page', 'pizza', 'shop', 'site', 'space', 'store', 'studio', 'tech', 'website', 'world'
+        'agency', 'black', 'blog', 'cafe', 'cash', 'chat', 'cloud', 'computer', 'cool', 'design', 'digital', 'directory', 'email', 'game', 'games', 'link', 'live', 'money', 'network', 'page', 'pizza', 'shop', 'site', 'space', 'store', 'studio', 'tech', 'tools', 'website', 'wiki', 'works', 'world'
       ];
       const commonDomains: DomainResult[] = commonTLDs.map(tld => ({
         domain: `${baseName.toLowerCase()}.${tld}`,
@@ -96,9 +104,10 @@ function DomainsContent() {
         const res = await fetch(`/api/domains/search?query=${encodeURIComponent(query)}`);
         if (res.ok) {
           const data = await res.json();
+          const excludedTLDs = ['quebec', 'ua', 'cl', 'ws'];
           fastlyDomains = (data.results || data.domains || data || [])
             .filter((d: DomainResult) => /^[a-z0-9.-]+$/i.test(d.domain))
-            .filter((d: DomainResult) => !d.domain.endsWith('.quebec'))
+            .filter((d: DomainResult) => !excludedTLDs.some(tld => d.domain.endsWith(`.${tld}`)))
             .filter((d: DomainResult) => d.subdomain && d.subdomain.length > 0)
             .filter((d: DomainResult) => {
               // If searching for a complete domain, filter out double TLD results
@@ -116,41 +125,51 @@ function DomainsContent() {
       }
 
       const allDomains = [...commonDomains, ...fastlyDomains];
-      const uniqueDomains = Array.from(new Map(allDomains.map((d: DomainResult) => [d.domain, d])).values());
-      
+      const uniqueDomains = Array.from(new Map(allDomains.map((d: DomainResult) => [d.domain, d])).values())
+        .filter((d: DomainResult) => {
+          // Exclude single character subdomains (minimum 2 characters before TLD)
+          const subdomain = d.subdomain.replace(/\.$/, '');
+          return subdomain.length >= 2;
+        });
+
       // Sort: exact matches (including domain hacks) first, then priority TLDs, then by TLD length, then alphabetically
       const normalizedQuery = query.toLowerCase().replace(/\s+/g, '');
       const priorityTLDs = ['com', 'co', 'io'];
-      
+
       uniqueDomains.sort((a, b) => {
-        // Check if domain exactly matches query
+        // Sort by overall domain length first (shortest first)
+        const domainLenA = a.domain.length;
+        const domainLenB = b.domain.length;
+
+        if (domainLenA !== domainLenB) return domainLenA - domainLenB;
+
+        // Same length, check for exact matches
         const isExactA = a.domain === normalizedQuery || a.domain === query.toLowerCase();
         const isExactB = b.domain === normalizedQuery || b.domain === query.toLowerCase();
-        
+
         // Check if subdomain + zone forms the query (domain hack)
-        // Strip trailing dot from subdomain before concatenating
         const isDomainHackA = (a.subdomain.replace(/\.$/, '') + a.zone) === normalizedQuery;
         const isDomainHackB = (b.subdomain.replace(/\.$/, '') + b.zone) === normalizedQuery;
-        
+
         const isMatchA = isExactA || isDomainHackA;
         const isMatchB = isExactB || isDomainHackB;
-        
+
         if (isMatchA && !isMatchB) return -1;
         if (!isMatchA && isMatchB) return 1;
-        
-        // Both are exact matches or both are not, check priority TLDs
+
+        // Same match status, check priority TLDs
         const isPriorityA = priorityTLDs.includes(a.zone);
         const isPriorityB = priorityTLDs.includes(b.zone);
-        
+
         if (isPriorityA && !isPriorityB) return -1;
         if (!isPriorityA && isPriorityB) return 1;
-        
-        // Both priority or both not priority, sort by TLD length
+
+        // Same priority status, sort by TLD length
         const tldLenA = a.zone.length;
         const tldLenB = b.zone.length;
-        
+
         if (tldLenA !== tldLenB) return tldLenA - tldLenB;
-        
+
         return a.zone.localeCompare(b.zone);
       });
 
@@ -221,6 +240,7 @@ function DomainsContent() {
       router.push('/domains');
       setResults([]);
       setStatuses({});
+      setSelectedDomain(null);
       return;
     }
 
@@ -279,8 +299,7 @@ function DomainsContent() {
   const isSelectedMarketed = selectedStatus?.status?.includes('marketed');
 
   const renderPurchaseButtons = (buttons: Registrar[]) => (
-    <div className="flex flex-col gap-4">
-      <p className="text-white">Purchase</p>
+    <Section label="Purchase">
       <div className="border flex flex-col">
         {buttons.map((button, index) => (
           <Button
@@ -297,16 +316,12 @@ function DomainsContent() {
           </Button>
         ))}
       </div>
-    </div>
+    </Section>
   );
 
   return (
-    <div className="w-full h-auto lg:h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
-
-      {/* Left Sidebar - Search */}
-      <div className="w-full lg:w-96 flex-shrink-0 h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r overflow-y-auto scrollbar-hide">
-
-        {/* Search */}
+    <PageLayout>
+      <PageSidebar>
         <Input
           ref={searchInputRef}
           label="Search"
@@ -315,9 +330,7 @@ function DomainsContent() {
           onChange={(e) => setQuery(e.target.value)}
         />
 
-        {/* Status Filter */}
-        <div className="flex flex-col gap-4">
-          <p className="text-white">Status</p>
+        <Section label="Status">
           <Tabs
             items={[
               { id: 'all', label: 'All' },
@@ -327,14 +340,26 @@ function DomainsContent() {
             activeTab={statusFilter}
             onTabChange={setStatusFilter}
           />
-        </div>
+        </Section>
 
-      </div>
+        <Section label="TLD Length">
+          <Tabs
+            items={[
+              { id: 'all', label: 'All' },
+              { id: '2', label: '2' },
+              { id: '3', label: '3' },
+              { id: '4', label: '4' },
+              { id: '5+', label: '5+' }
+            ]}
+            activeTab={tldLengthFilter}
+            onTabChange={setTldLengthFilter}
+          />
+        </Section>
+      </PageSidebar>
 
-      {/* Main content */}
-      <div className={`w-full lg:flex-1 lg:h-full bg-black scrollbar-hide ${results.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+      <PageContent className={results.length > 0 ? '' : 'overflow-hidden'}>
         {results.length > 0 ? (
-          <div className="flex flex-col divide-y-2 divide-dashed divide-neutral-800 border-b">
+          <DividedList>
             {results.filter((result) => {
               if (statusFilter === 'all') return true;
 
@@ -354,10 +379,27 @@ function DomainsContent() {
               }
 
               return true;
+            }).filter((result) => {
+              if (tldLengthFilter === 'all') return true;
+
+              const tldLength = result.zone.length;
+
+              if (tldLengthFilter === '2') return tldLength === 2;
+              if (tldLengthFilter === '3') return tldLength === 3;
+              if (tldLengthFilter === '4') return tldLength === 4;
+              if (tldLengthFilter === '5+') return tldLength >= 5;
+
+              return true;
             }).map((result, index) => {
               const status = statuses[result.domain];
               const isAvailable = status?.status?.includes('inactive');
               const isPremium = status?.status?.includes('premium');
+
+              // Check if this is a domain hack
+              const normalizedQuery = query.toLowerCase().replace(/\s+/g, '');
+              const domainHackBase = result.subdomain.replace(/\.$/, '') + result.zone;
+              const isDomainHack = normalizedQuery.startsWith(domainHackBase) && normalizedQuery !== domainHackBase;
+              const remainder = isDomainHack ? normalizedQuery.substring(domainHackBase.length) : '';
 
               return (
                 <button
@@ -367,7 +409,10 @@ function DomainsContent() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-1.5 h-1.5 ${!status ? 'bg-neutral-900 animate-pulse' : isAvailable ? 'bg-green-500' : 'bg-neutral-600'}`} />
-                    <span className="text-white">{result.domain}</span>
+                    <span className="text-white">
+                      {result.domain}
+                      {remainder && <span className="text-grey">/{remainder}</span>}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -387,9 +432,9 @@ function DomainsContent() {
                 </button>
               );
             })}
-          </div>
+          </DividedList>
         ) : (
-          <div className="flex flex-col divide-y-2 divide-dashed divide-neutral-800">
+          <DividedList showBorder={false}>
             {Array.from({ length: skeletonCount }).map((_, index) => (
               <div key={index} className="w-full p-6 h-21 flex items-center justify-between">
                 <div className={`flex items-center gap-4 ${isSearching ? 'animate-pulse' : ''}`}>
@@ -401,30 +446,24 @@ function DomainsContent() {
                 </div>
               </div>
             ))}
-          </div>
+          </DividedList>
         )}
-      </div>
+      </PageContent>
 
-      {/* Right Sidebar - Domain Details */}
-      <div ref={sidebarRef} className={`w-full lg:w-96 flex-shrink-0 h-auto lg:h-full flex flex-col gap-7 pb-8 border-l overflow-y-auto transition-all ${selectedDomain ? 'mr-0' : '-mr-96 lg:-mr-96'}`}>
-
-        <div className="w-full flex items-center justify-between sticky top-0 bg-black h-21 flex-shrink-0 z-10 px-6 border-b transition-all">
-          <h2>{selectedDomain?.domain || ''}</h2>
-          <Button onClick={() => setSelectedDomain(null)} variant="icon" className="-mr-3">
-            <Icon set="lucide" name="x" size="sm" />
-          </Button>
-        </div>
-
+      <DetailSidebar
+        isOpen={!!selectedDomain}
+        title={selectedDomain?.domain || ''}
+        onClose={() => setSelectedDomain(null)}
+      >
         {selectedDomain && (
-          <div className="flex flex-col gap-12 px-6">
+          <div className="flex flex-col gap-12 px-6 pt-7">
             {isSelectedAvailable && registrars.length > 0 && renderPurchaseButtons(registrars)}
 
             {isSelectedForSale && selectedStatus?.offers && selectedStatus.offers.length > 0 && (
               <>
-                <div className="flex flex-col gap-4">
-                  <p className="text-white">Price</p>
+                <Section label="Price">
                   <div className="flex flex-col gap-2">
-                    {Array.from(new Map(selectedStatus.offers.map(offer => 
+                    {Array.from(new Map(selectedStatus.offers.map(offer =>
                       [`${offer.price}-${offer.currency}`, offer]
                     )).values()).map((offer, index) => (
                       <div key={index} className="flex items-center justify-between">
@@ -432,12 +471,12 @@ function DomainsContent() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </Section>
                 {renderPurchaseButtons(registrars)}
               </>
             )}
 
-            {isSelectedMarketed && (!selectedStatus?.offers || selectedStatus.offers.length === 0) && 
+            {isSelectedMarketed && (!selectedStatus?.offers || selectedStatus.offers.length === 0) &&
               renderPurchaseButtons([
                 { name: 'Atom', url: `https://www.atom.com/premium-domains-for-sale/q/${selectedDomain.domain}` },
                 { name: 'Afternic', url: `https://www.afternic.com/forsale/${selectedDomain.domain}` },
@@ -445,8 +484,7 @@ function DomainsContent() {
               ])
             }
 
-            <div className="flex flex-col gap-4">
-              <p className="text-white">Data</p>
+            <Section label="Data">
               <div className="border p-5">
                 {isLoadingWhois ? (
                   <div className="flex flex-col gap-2 animate-pulse">
@@ -459,54 +497,31 @@ function DomainsContent() {
                 ) : (
                   <div className="flex flex-col gap-6">
                     {whoisData.registrar && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Registrar</span>
-                        <span className="text-white">{whoisData.registrar}</span>
-                      </div>
+                      <DataField label="Registrar" value={whoisData.registrar} />
                     )}
                     {whoisData.created_date && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Created</span>
-                        <span className="text-white">{formatDate(whoisData.created_date)}</span>
-                      </div>
+                      <DataField label="Created" value={formatDate(whoisData.created_date)} />
                     )}
                     {whoisData.expiration_date && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Expires</span>
-                        <span className="text-white">{formatDate(whoisData.expiration_date)}</span>
-                      </div>
+                      <DataField label="Expires" value={formatDate(whoisData.expiration_date)} />
                     )}
                     {whoisData.updated_date && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Updated</span>
-                        <span className="text-white">{formatDate(whoisData.updated_date)}</span>
-                      </div>
+                      <DataField label="Updated" value={formatDate(whoisData.updated_date)} />
                     )}
                     {whoisData.registrant_organization && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Organization</span>
-                        <span className="text-white">{whoisData.registrant_organization}</span>
-                      </div>
+                      <DataField label="Organization" value={whoisData.registrant_organization} />
                     )}
                     {whoisData.name_servers && whoisData.name_servers.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-grey text-sm">Name Servers</span>
-                        <div className="flex flex-col gap-0.5">
-                          {whoisData.name_servers.map((ns, index) => (
-                            <span key={index} className="text-white text-sm">{ns}</span>
-                          ))}
-                        </div>
-                      </div>
+                      <DataField label="Name Servers" value={whoisData.name_servers} />
                     )}
                   </div>
                 )}
               </div>
-            </div>
+            </Section>
           </div>
         )}
-      </div>
-
-    </div>
+      </DetailSidebar>
+    </PageLayout>
   );
 }
 

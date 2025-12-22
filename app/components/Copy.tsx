@@ -5,21 +5,33 @@ import { Icon } from '@modules/icons';
 import Button from './Button';
 
 interface CopyProps {
-  text: string;
+  text?: string;
+  imageUrl?: string;
   className?: string;
   children?: React.ReactNode;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export default function Copy({ 
   text, 
+  imageUrl,
   className = '', 
   children,
+  size = 'xs',
 }: CopyProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (imageUrl) {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({ [blob.type]: blob }),
+        ]);
+      } else if (text) {
+        await navigator.clipboard.writeText(text);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -35,11 +47,10 @@ export default function Copy({
     >
       {children || (
         <Icon
-          name={copied ? "tick-02" : "copy-01"}
-          set="huge"
+          name={copied ? "check" : "duplicate"}
+          set="pixelart"
           color="white"
-          style="sharp"
-          size="xs"
+          size={size}
           className="group-hover:invert"
         />
       )}

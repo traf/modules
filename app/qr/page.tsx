@@ -5,6 +5,10 @@ import Code from '../components/Code';
 import Input from '../components/Input';
 import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
+import PageContent from '../components/PageContent';
+import PageSidebar from '../components/PageSidebar';
+import PageLayout from '../components/PageLayout';
+import FormField from '../components/FormField';
 import { Icon } from '@/modules/icons/src';
 
 export default function QRClient() {
@@ -27,12 +31,8 @@ export default function QRClient() {
   const qrUrl = `/api/qr?url=${encodeURIComponent(data || 'modul.es')}&size=${selectedSize}&color=${encodeURIComponent(selectedColor)}&bgColor=${encodeURIComponent(selectedBgColor)}&margin=${spacingMap[selectedSpacing]}&errorCorrection=${selectedErrorCorrection}`;
 
   return (
-    <div className="w-full h-auto lg:h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
-
-      {/* Left Sidebar - Controls and Code */}
-      <div className="w-full lg:w-[440px] flex-shrink-0 h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r overflow-hidden relative">
-
-        {/* URL */}
+    <PageLayout>
+      <PageSidebar size="lg">
         <Input
           ref={dataInputRef}
           label="URL"
@@ -42,9 +42,7 @@ export default function QRClient() {
           onChange={(e) => setData(e.target.value)}
         />
 
-        {/* Size */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Size</p>
+        <FormField title="Size">
           <Tabs
             items={[
               { id: 'xs', label: 'XS' },
@@ -56,9 +54,8 @@ export default function QRClient() {
             activeTab={selectedSize}
             onTabChange={setSelectedSize}
           />
-        </div>
+        </FormField>
 
-        {/* Color and Background Color */}
         <div className="flex gap-4">
           <div className="flex-1">
             <Input
@@ -78,9 +75,7 @@ export default function QRClient() {
           </div>
         </div>
 
-        {/* Spacing */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Spacing</p>
+        <FormField title="Spacing">
           <Tabs
             items={[
               { id: 'xs', label: 'XS' },
@@ -92,11 +87,9 @@ export default function QRClient() {
             activeTab={selectedSpacing}
             onTabChange={setSelectedSpacing}
           />
-        </div>
+        </FormField>
 
-        {/* Error Correction */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Error Correction</p>
+        <FormField title="Error Correction">
           <Dropdown
             items={[
               { id: 'L', label: 'Low' },
@@ -107,7 +100,7 @@ export default function QRClient() {
             value={selectedErrorCorrection}
             onChange={setSelectedErrorCorrection}
           />
-        </div>
+        </FormField>
 
         {/* Fixed bottom installation panel */}
         <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t z-50">
@@ -159,10 +152,9 @@ export default function QRClient() {
           </div>
         </div>
 
-      </div>
+      </PageSidebar>
 
-      {/* Right Side - QR Code Preview */}
-      <div className="w-full lg:flex-1 lg:h-full bg-black overflow-y-auto flex items-center justify-center p-12">
+      <PageContent className="flex items-center justify-center p-12">
         <div className="relative">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -179,7 +171,7 @@ export default function QRClient() {
             onError={() => setIsLoading(false)}
           />
         </div>
-      </div>
-    </div>
+      </PageContent>
+    </PageLayout>
   );
 }

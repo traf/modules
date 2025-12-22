@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Nav from "./components/Nav";
 import "./globals.css";
+import Sidebar from "./components/Sidebar";
 
 const font = localFont({
   src: [{ path: "../public/font.woff2", weight: "500" }],
@@ -43,11 +44,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`bg-black h-svh flex flex-col text-white selection:bg-white/20 selection:text-white uppercase antialiased font **:outline-none ${font.variable}`}>
         <Nav />
-        <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 flex flex-col overflow-y-auto">
-            {children}
-          </main>
-        </div>
+        {children}
       </body>
     </html>
   );

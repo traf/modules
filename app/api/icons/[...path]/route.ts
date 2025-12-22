@@ -174,6 +174,7 @@ export async function GET(
     const color = searchParams.get('color')
     const stroke = searchParams.get('stroke')
     const style = searchParams.get('style')
+    const size = searchParams.get('size')
 
 
     const params = await context.params
@@ -207,6 +208,17 @@ export async function GET(
     // Apply stroke width modification using icon set-specific rules
     if (stroke) {
       modifiedSvg = applyStrokeByIconSet(modifiedSvg, iconPath, stroke)
+    }
+
+    // Apply size modification
+    if (size) {
+      const sizeMap: Record<string, number> = { xs: 16, sm: 20, md: 24, lg: 32, xl: 40 }
+      const iconSize = sizeMap[size] || parseInt(size) || 24
+      modifiedSvg = modifiedSvg.replace(/<svg([^>]*)>/i, (match, attrs) => {
+        let newAttrs = attrs.replace(/\s(?:width|height)="[^"]*"/gi, '')
+        newAttrs += ` width="${iconSize}" height="${iconSize}"`
+        return `<svg${newAttrs}>`
+      })
     }
 
     return new NextResponse(modifiedSvg, {

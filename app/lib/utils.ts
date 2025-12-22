@@ -36,3 +36,13 @@ export function formatDateWithOptions(
 ): string {
   return new Date(dateString).toLocaleDateString('en-US', options);
 }
+
+/**
+ * Format image dimensions for display
+ * @param width - Image width in pixels
+ * @param height - Image height in pixels
+ * @returns Formatted size string
+ */
+export function formatImageSize(width: number, height: number): string {
+  return `${width} × ${height}`;
+}

@@ -14,10 +14,11 @@ interface InputProps {
   prefix?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   suffix?: React.ReactNode;
+  accept?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix, onKeyDown, suffix }, ref) => {
+  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix, onKeyDown, suffix, accept }, ref) => {
     const inputId = id || name || placeholder?.toLowerCase().replace(/\s+/g, '-');
     const internalRef = useRef<HTMLInputElement>(null);
 
@@ -31,6 +32,27 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       }
       internalRef.current?.focus();
     };
+
+    if (type === "file") {
+      return (
+        <div className="flex flex-col gap-4 w-full">
+          {label && <label className="text-white">{label}</label>}
+          <input
+            ref={internalRef}
+            id={inputId}
+            name={name || inputId}
+            type="file"
+            accept={accept}
+            onChange={onChange}
+            className="hidden"
+          />
+          <label htmlFor={inputId} className={`w-full flex flex-col p-8 gap-6 items-center text-center border hover:bg-white/5 cursor-pointer ${className}`}>
+            <Icon set="pixelart" name="upload" size="sm" />
+            <span className="text-white">{placeholder || 'Upload file'}</span>
+          </label>
+        </div>
+      );
+    }
 
     return (
       <div className="flex flex-col gap-3 w-full">

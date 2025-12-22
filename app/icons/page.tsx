@@ -9,6 +9,10 @@ import Loader from '../components/Loader';
 import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
 import Badge from '../components/Badge';
+import PageContent from '../components/PageContent';
+import PageSidebar from '../components/PageSidebar';
+import PageLayout from '../components/PageLayout';
+import FormField from '../components/FormField';
 
 const iconSets = {
   huge: ['home-01', 'analytics-01', 'signature', 'code-folder', 'qr-code-01', 'browser', 'checkmark-badge-02', 'chat-feedback', 'dollar-02', 'zap', 'victory-finger-02', 'square-lock-password', 'user-02', 'settings-02', 'search-01', 'mail-01', 'calendar-01', 'notification-01', 'image-01', 'download-01'],
@@ -17,7 +21,7 @@ const iconSets = {
   pixelart: ['home', 'chart', 'edit', 'folder', 'code', 'file', 'check', 'chat', 'dollar', 'zap', 'heart', 'lock', 'user', 'search', 'mail', 'calendar', 'bookmark', 'download', 'cloud', 'image']
 };
 
-const ICONS_PER_LOAD = 48;
+const ICONS_PER_LOAD = 80;
 
 function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, selectedSize, copiedIcon, copyMode, onClick }: {
   iconName: string;
@@ -47,7 +51,7 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
 
       {copiedIcon === iconName && (
         <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
-          Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'component'}
+          Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : copyMode === 'image' ? 'URL' : 'component'}
         </p>
       )}
     </button>
@@ -86,23 +90,23 @@ export default function IconsClient() {
       }
     } else if (copyMode === 'svg') {
       try {
-        let url = `https://modul.es/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
+        let url = `/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(validColor)}`;
         if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
           url += `&stroke=${encodeURIComponent(selectedStroke)}`;
         }
         if (selectedSet === 'phosphor' && selectedStyle) {
-          url = `https://modul.es/api/icons/${selectedSet}/${iconName}.${selectedStyle}.svg?color=${encodeURIComponent(validColor)}`;
+          url = `/api/icons/${selectedSet}/${iconName}.${selectedStyle}.svg?color=${encodeURIComponent(validColor)}`;
         }
         if (selectedSet === 'huge' && selectedStyle === 'sharp') {
-          url = `https://modul.es/api/icons/${selectedSet}/${iconName}.sharp.svg?color=${encodeURIComponent(validColor)}&stroke=${encodeURIComponent(selectedStroke)}`;
+          url = `/api/icons/${selectedSet}/${iconName}.sharp.svg?color=${encodeURIComponent(validColor)}&stroke=${encodeURIComponent(selectedStroke)}`;
         }
         const response = await fetch(url);
         if (response.ok) {
           let svgContent = await response.text();
-          
+
           const sizeMap: Record<string, number> = { xs: 16, sm: 20, md: 24, lg: 32, xl: 40 };
           const iconSize = sizeMap[selectedSize] || 24;
-          
+
           svgContent = svgContent.replace(/<\?xml[^>]*\?>/g, '');
           svgContent = svgContent.replace(/<!--[\s\S]*?-->/g, '');
           svgContent = svgContent.replace(/<svg([^>]*)>/i, (match, attrs) => {
@@ -117,11 +121,33 @@ export default function IconsClient() {
             }
             return `<svg${newAttrs}>`;
           });
-          
+
           await navigator.clipboard.writeText(svgContent.trim());
           setCopiedIcon(iconName);
           setTimeout(() => setCopiedIcon(''), 1000);
         }
+      } catch {
+        // Silently fail
+      }
+    } else if (copyMode === 'image') {
+      try {
+        const urlColor = validColor === 'white' ? 'black' : validColor;
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://modul.es';
+        let url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(urlColor)}`;
+        if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
+          url += `&stroke=${encodeURIComponent(selectedStroke)}`;
+        }
+        if (selectedSet === 'phosphor' && selectedStyle) {
+          url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.${selectedStyle}.svg?color=${encodeURIComponent(urlColor)}`;
+        }
+        if (selectedSet === 'huge' && selectedStyle === 'sharp') {
+          url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.sharp.svg?color=${encodeURIComponent(urlColor)}&stroke=${encodeURIComponent(selectedStroke)}`;
+        }
+        url += `&size=${selectedSize}`;
+        
+        await navigator.clipboard.writeText(url);
+        setCopiedIcon(iconName);
+        setTimeout(() => setCopiedIcon(''), 1000);
       } catch {
         // Silently fail
       }
@@ -231,12 +257,55 @@ export default function IconsClient() {
   }, [selectedSet, searchQuery, allIcons, displayCount]);
 
   return (
-    <div className="w-full h-auto lg:h-full flex flex-col lg:flex-row items-start justify-start overflow-hidden">
+    <PageLayout>
+      <PageSidebar
+        size="lg"
+        footer={
+          <div className="w-full bg-black border-t">
+            <button
+              onClick={() => setIsInstallOpen(!isInstallOpen)}
+              className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5"
+            >
+              <span className="text-white font-medium">Installation</span>
+              <Icon
+                name={isInstallOpen ? 'arrow-down-01' : 'arrow-up-01'}
+                set="huge"
+                color="neutral-500"
+                style="sharp"
+              />
+            </button>
 
-      {/* Left Sidebar - Controls and Code */}
-      <div className="w-full lg:w-[440px] flex-shrink-0 h-auto lg:h-full flex flex-col gap-8 p-6 pb-20 lg:pb-6 border-r overflow-hidden relative">
+            <div
+              className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-[600px]' : 'max-h-0'
+                }`}
+            >
+              <div className="p-6 pt-6 flex flex-col gap-6">
 
-        {/* Search */}
+                {/* Code */}
+                <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
+                <Code title="Usage">
+                  {`import { Icon } from '@modul-es/icons';
+
+<Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''}${selectedSize !== 'md' ? ` size="${selectedSize}"` : ''} />`}
+                </Code>
+
+                {/* Props */}
+                <div className="flex flex-col gap-5">
+                  <p className="text-white">Props</p>
+                  <div className="flex gap-2">
+                    <Badge className="flex-1 border">Set</Badge>
+                    <Badge className="flex-1 border">Color</Badge>
+                    <Badge className="flex-1 border">Size</Badge>
+                    <Badge className="flex-1 border">Style</Badge>
+                    <Badge className="flex-1 border">Stroke</Badge>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        }
+      >
         <Input
           ref={searchInputRef}
           label="Search"
@@ -245,9 +314,7 @@ export default function IconsClient() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        {/* Set */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Set</p>
+        <FormField title="Set">
           <Tabs
             items={Object.keys(iconSets).map(setName => ({
               id: setName,
@@ -256,11 +323,9 @@ export default function IconsClient() {
             activeTab={selectedSet}
             onTabChange={setSelectedSet}
           />
-        </div>
+        </FormField>
 
-        {/* Color and Stroke Width */}
         <div className="flex gap-4">
-          {/* Color */}
           <div className="flex-1">
             <Input
               label="Color"
@@ -270,47 +335,44 @@ export default function IconsClient() {
             />
           </div>
 
-          {/* Stroke */}
           {selectedSet !== 'phosphor' && selectedSet !== 'pixelart' && (
-            <div className="w-36 flex flex-col gap-3">
-              <p className="text-white">Stroke</p>
-              <Dropdown
-                items={[
-                  { id: '1', label: '1' },
-                  { id: '1.5', label: '1.5' },
-                  { id: '2', label: '2' },
-                  { id: '2.5', label: '2.5' }
-                ]}
-                value={selectedStroke}
-                onChange={setSelectedStroke}
-              />
+            <div className="w-36">
+              <FormField title="Stroke">
+                <Dropdown
+                  items={[
+                    { id: '1', label: '1' },
+                    { id: '1.5', label: '1.5' },
+                    { id: '2', label: '2' },
+                    { id: '2.5', label: '2.5' }
+                  ]}
+                  value={selectedStroke}
+                  onChange={setSelectedStroke}
+                />
+              </FormField>
             </div>
           )}
 
-          {/* Style */}
           {selectedSet === 'phosphor' && (
-            <div className="w-36 flex flex-col gap-3">
-              <p className="text-white">Style</p>
-              <Dropdown
-                items={[
-                  { id: '', label: 'Regular' },
-                  { id: 'thin', label: 'Thin' },
-                  { id: 'light', label: 'Light' },
-                  { id: 'bold', label: 'Bold' },
-                  { id: 'fill', label: 'Fill' },
-                  { id: 'duotone', label: 'Duotone' }
-                ]}
-                value={selectedStyle}
-                onChange={setSelectedStyle}
-              />
+            <div className="w-36">
+              <FormField title="Style">
+                <Dropdown
+                  items={[
+                    { id: '', label: 'Regular' },
+                    { id: 'thin', label: 'Thin' },
+                    { id: 'light', label: 'Light' },
+                    { id: 'bold', label: 'Bold' },
+                    { id: 'fill', label: 'Fill' },
+                    { id: 'duotone', label: 'Duotone' }
+                  ]}
+                  value={selectedStyle}
+                  onChange={setSelectedStyle}
+                />
+              </FormField>
             </div>
           )}
-
         </div>
 
-        {/* Size */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Size</p>
+        <FormField title="Size">
           <Tabs
             items={[
               { id: 'xs', label: 'XS' },
@@ -322,74 +384,23 @@ export default function IconsClient() {
             activeTab={selectedSize}
             onTabChange={setSelectedSize}
           />
-        </div>
+        </FormField>
 
-        {/* Copy Mode */}
-        <div className="flex flex-col gap-3">
-          <p className="text-white">Copy</p>
+        <FormField title="Copy">
           <Tabs
             items={[
-              { id: 'name', label: 'Icon name' },
-              { id: 'svg', label: 'SVG code' },
+              { id: 'name', label: 'Name' },
+              { id: 'svg', label: 'SVG' },
+              { id: 'image', label: 'URL' },
               { id: 'component', label: 'Component' }
             ]}
             activeTab={copyMode}
             onTabChange={setCopyMode}
           />
-        </div>
+        </FormField>
+      </PageSidebar>
 
-        {/* Fixed bottom installation panel */}
-        <div className="absolute gap-4 bottom-0 left-0 w-full lg:w-[440px] bg-black border-t z-50">
-          <button
-            onClick={() => setIsInstallOpen(!isInstallOpen)}
-            className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5"
-          >
-            <span className="text-white font-medium">Installation</span>
-            <Icon
-              name={isInstallOpen ? 'arrow-down-01' : 'arrow-up-01'}
-              set="huge"
-              color="neutral-500"
-              style="sharp"
-            />
-          </button>
-
-          <div
-            className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-[600px]' : 'max-h-0'
-              }`}
-          >
-            <div className="p-6 pt-6 flex flex-col gap-6">
-
-              {/* Code */}
-              <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
-              <Code title="Usage">
-                {`import { Icon } from '@modul-es/icons';
-
-<Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''}${selectedSize !== 'md' ? ` size="${selectedSize}"` : ''} />`}
-              </Code>
-
-              {/* Props */}
-              <div className="flex flex-col gap-5">
-                <p className="text-white">Props</p>
-                <div className="flex gap-2">
-                  <Badge className="flex-1 border">Set</Badge>
-                  <Badge className="flex-1 border">Color</Badge>
-                  <Badge className="flex-1 border">Size</Badge>
-                  <Badge className="flex-1 border">Style</Badge>
-                  <Badge className="flex-1 border">Stroke</Badge>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Right Side - Icon Grid */}
-      <div
-        ref={gridRef}
-        className="w-full lg:flex-1 lg:h-full bg-black overflow-y-auto"
-      >
+      <PageContent ref={gridRef}>
         <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 auto-rows-auto divide-x-2 divide-y-2 divide-neutral-800 divide-dashed">
 
           {isLoading && displayCount === ICONS_PER_LOAD ? (
@@ -417,7 +428,7 @@ export default function IconsClient() {
             </>
           )}
         </div>
-      </div>
-    </div>
+      </PageContent>
+    </PageLayout>
   );
 }
