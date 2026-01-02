@@ -55,7 +55,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      <div className="flex flex-col gap-3 w-full">
+      <div className="flex flex-col gap-4 w-full">
         {label && <label htmlFor={inputId} className="text-white">{label}</label>}
         <div className="relative w-full">
           {prefix && (

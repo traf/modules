@@ -9,7 +9,6 @@ const icons = [
     'circle',
     'diamond',
     'house-simple',
-    'heart',
     'hexagon',
     'first-aid',
     'spade',
