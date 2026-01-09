@@ -72,7 +72,6 @@ export default function IconsClient() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedIcon, setCopiedIcon] = useState<string>('');
   const [copyMode, setCopyMode] = useState<string>('name');
-  const [isInstallOpen, setIsInstallOpen] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const isLoadingMoreRef = useRef<boolean>(false);
@@ -261,49 +260,25 @@ export default function IconsClient() {
       <PageSidebar
         size="lg"
         footer={
-          <div className="w-full bg-black border-t">
-            <button
-              onClick={() => setIsInstallOpen(!isInstallOpen)}
-              className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5"
-            >
-              <span className="text-white font-medium">Installation</span>
-              <Icon
-                name={isInstallOpen ? 'arrow-down-01' : 'arrow-up-01'}
-                set="huge"
-                color="neutral-500"
-                style="sharp"
-              />
-            </button>
-
-            <div
-              className={`overflow-hidden transition-all duration-200 ${isInstallOpen ? 'max-h-[600px]' : 'max-h-0'
-                }`}
-            >
-              <div className="p-6 pt-6 flex flex-col gap-6">
-
-                {/* Code */}
-                <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
-                <Code title="Usage">
-                  {`import { Icon } from '@modul-es/icons';
+          <>
+            <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
+            <Code title="Usage">
+              {`import { Icon } from '@modul-es/icons';
 
 <Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''}${selectedSize !== 'md' ? ` size="${selectedSize}"` : ''} />`}
-                </Code>
+            </Code>
 
-                {/* Props */}
-                <div className="flex flex-col gap-5">
-                  <p className="text-white">Props</p>
-                  <div className="flex gap-2">
-                    <Badge className="flex-1 border">Set</Badge>
-                    <Badge className="flex-1 border">Color</Badge>
-                    <Badge className="flex-1 border">Size</Badge>
-                    <Badge className="flex-1 border">Style</Badge>
-                    <Badge className="flex-1 border">Stroke</Badge>
-                  </div>
-                </div>
-
+            <div className="flex flex-col gap-5">
+              <p className="text-white">Props</p>
+              <div className="flex gap-2">
+                <Badge className="flex-1 border">Set</Badge>
+                <Badge className="flex-1 border">Color</Badge>
+                <Badge className="flex-1 border">Size</Badge>
+                <Badge className="flex-1 border">Style</Badge>
+                <Badge className="flex-1 border">Stroke</Badge>
               </div>
             </div>
-          </div>
+          </>
         }
       >
         <Input

@@ -26,11 +26,11 @@ export default function Nav() {
                     Domains
                 </Button>
                 {/* <Button 
-                    href="/media" 
+                    href="/qr" 
                     className="h-full" 
-                    variant={pathname === '/media' ? 'primary' : undefined}
+                    variant={pathname === '/qr' ? 'primary' : undefined}
                 >
-                    Media
+                    QR
                 </Button> */}
                 <Button href="https://github.com/traf/modules" target="_blank" className="h-full">Github</Button>
                 <Button href="https://x.com/traf" target="_blank" className="h-full">@traf</Button>

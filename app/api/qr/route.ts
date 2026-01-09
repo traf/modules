@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import QRCode from 'qrcode'
+import { resolveColor } from '@modules/icons/src/colors'
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -17,10 +18,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const url = searchParams.get('url')
     const size = searchParams.get('size') || 'md'
-    const color = searchParams.get('color') || '#000000'
-    const bgColor = searchParams.get('bgColor') || '#ffffff'
+    const rawColor = searchParams.get('color') || '000000'
+    const rawBgColor = searchParams.get('bgColor') || 'ffffff'
+    const color = resolveColor(rawColor)
+    const bgColor = resolveColor(rawBgColor)
     const margin = parseInt(searchParams.get('margin') || '4')
-    const errorCorrection = searchParams.get('errorCorrection') || 'M'
 
     if (!url) {
       return new NextResponse('Missing url parameter', { status: 400 })
@@ -29,14 +31,12 @@ export async function GET(request: NextRequest) {
     const normalizedUrl = url.match(/^https?:\/\//) ? url : `https://${url}`
 
     const sizeMap: Record<string, number> = {
-      xs: 256,
       sm: 256,
-      md: 512,
-      lg: 512,
-      xl: 1024
+      md: 384,
+      lg: 512
     }
 
-    const width = sizeMap[size] || 512
+    const width = sizeMap[size] || 384
 
     const qrCodeSvg = await QRCode.toString(normalizedUrl, {
       type: 'svg',
@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
         dark: color,
         light: bgColor
       },
-      errorCorrectionLevel: errorCorrection as 'L' | 'M' | 'Q' | 'H'
+      errorCorrectionLevel: 'H'
     })
 
     return new NextResponse(qrCodeSvg, {
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=86400, must-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',

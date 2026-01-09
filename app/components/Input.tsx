@@ -15,10 +15,12 @@ interface InputProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   suffix?: React.ReactNode;
   accept?: string;
+  min?: string;
+  max?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix, onKeyDown, suffix, accept }, ref) => {
+  ({ type = "text", placeholder, value = "", onChange, className = "", label, id, name, onClear, prefix, onKeyDown, suffix, accept, min, max }, ref) => {
     const inputId = id || name || placeholder?.toLowerCase().replace(/\s+/g, '-');
     const internalRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +74,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             value={value}
             onChange={onChange}
             onKeyDown={onKeyDown}
+            min={min}
+            max={max}
             className={`w-full h-14 bg-transparent text-white placeholder:text-grey outline-none border ${prefix ? 'pl-[calc(1rem+var(--prefix-width))]' : 'px-4'} ${value && !suffix ? 'pr-12' : suffix ? 'pr-12' : 'pr-4'} ${className}`}
             style={prefix ? { '--prefix-width': `${prefix.length * 10}px` } as React.CSSProperties : undefined}
           />
