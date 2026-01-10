@@ -107,7 +107,7 @@ export function Icon({
                 newAttrs += ` fill="currentColor"`;
             }
 
-            if (!newAttrs.includes('shape-rendering=')) {
+            if (set === 'pixelart' && !newAttrs.includes('shape-rendering=')) {
                 newAttrs += ` shape-rendering="crispEdges"`;
             }
             return `<svg${newAttrs}>`;
