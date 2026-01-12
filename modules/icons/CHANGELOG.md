@@ -2,12 +2,15 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.3] - 2025-01-12
+
+### Fixed
+- Fixed layout shift (CLS) by reserving space with wrapper dimensions before SVG loads
+
 ## [0.2.2] - 2025-01-09
 
 ### Fixed
 - Fixed jagged/aliased icon rendering in Firefox by only applying `shape-rendering="crispEdges"` to pixelart icons instead of all icon sets
-- Set explicit width and height on SVGs for consistent cross-browser rendering
-- Changed wrapper from div to inline-flex span for better layout behavior
 
 ## [0.2.1] - 2025-12-13
 

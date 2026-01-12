@@ -116,11 +116,25 @@ export function Icon({
         return svg.trim();
     }, [svgContent, size, className, set]);
 
-    if (error || !processedSvg) {
+    const iconSize = typeof size === 'string' && size in SIZE_MAP 
+        ? SIZE_MAP[size as IconSize]
+        : typeof size === 'number' 
+        ? size 
+        : 24;
+
+    if (error) {
         return null;
     }
 
     return (
-        <div dangerouslySetInnerHTML={{ __html: processedSvg }} />
+        <span 
+            style={{ 
+                display: 'inline-flex',
+                width: iconSize,
+                height: iconSize,
+            }}
+        >
+            {processedSvg && <span dangerouslySetInnerHTML={{ __html: processedSvg }} />}
+        </span>
     );
 }
