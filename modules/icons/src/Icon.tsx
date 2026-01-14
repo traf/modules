@@ -129,12 +129,10 @@ export function Icon({
     return (
         <span 
             style={{ 
-                display: 'inline-flex',
                 width: iconSize,
                 height: iconSize,
             }}
-        >
-            {processedSvg && <span dangerouslySetInnerHTML={{ __html: processedSvg }} />}
-        </span>
+            dangerouslySetInnerHTML={processedSvg ? { __html: processedSvg } : undefined}
+        />
     );
 }

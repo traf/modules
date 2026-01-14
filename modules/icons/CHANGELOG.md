@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.4] - 2025-01-14
+
+### Fixed
+- Fixed icon wrapper adding extra vertical spacing in parent elements by simplifying container styles
+
 ## [0.2.3] - 2025-01-12
 
 ### Fixed
