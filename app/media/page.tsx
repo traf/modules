@@ -131,8 +131,17 @@ export default function MediaPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to split image');
+        const text = await response.text();
+        let errorMessage = 'Failed to split image';
+        try {
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          if (response.status === 403) {
+            errorMessage = 'Image too large. Try a smaller file.';
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();

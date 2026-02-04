@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const rawBuffer = Buffer.from(await file.arrayBuffer());
+    // Re-encode to clean up corrupt/malformed image data
+    const buffer = await sharp(rawBuffer).png().toBuffer();
     const frames = await splitGrid(buffer, cols, rows, frameBorder);
 
     const images = await Promise.all(

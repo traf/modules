@@ -16,7 +16,7 @@ export interface IconProps {
     name: string;
     color?: string;
     stroke?: string;
-    style?: 'sharp' | 'default' | 'fill' | 'thin' | 'light' | 'bold' | 'duotone';
+    style?: 'sharp' | 'default' | 'fill' | 'sharp-fill' | 'thin' | 'light' | 'bold' | 'duotone';
     set?: IconSet;
     className?: string;
     size?: IconSize | number | string;
@@ -37,12 +37,18 @@ export function Icon({
     const iconKey = useMemo(() => {
         let iconName = name.replace('.svg', '');
 
-        if (set === 'phosphor' && typeof style === 'string' && ['thin', 'light', 'bold', 'fill', 'duotone'].includes(style)) {
+        if (set === 'phosphor' && (style === 'thin' || style === 'light' || style === 'bold' || style === 'fill' || style === 'duotone')) {
             iconName = `${iconName}.${style}`;
         }
 
-        if (set === 'huge' && style === 'sharp') {
-            iconName = `${iconName}.sharp`;
+        if (set === 'huge') {
+            if (style === 'sharp') {
+                iconName = `${iconName}.sharp`;
+            } else if (style === 'fill') {
+                iconName = `${iconName}.fill`;
+            } else if (style === 'sharp-fill') {
+                iconName = `${iconName}.sharp.fill`;
+            }
         }
 
         return iconName;
