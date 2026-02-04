@@ -183,8 +183,14 @@ export async function GET(
     let iconPath = params.path.join('/')
 
     // Handle style parameter for huge icons
-    if (style === 'sharp' && iconPath.startsWith('huge/') && iconPath.endsWith('.svg')) {
-      iconPath = iconPath.replace('.svg', '.sharp.svg')
+    if (style && iconPath.startsWith('huge/') && iconPath.endsWith('.svg')) {
+      if (style === 'sharp') {
+        iconPath = iconPath.replace('.svg', '.sharp.svg')
+      } else if (style === 'fill') {
+        iconPath = iconPath.replace('.svg', '.fill.svg')
+      } else if (style === 'sharp-fill') {
+        iconPath = iconPath.replace('.svg', '.sharp.fill.svg')
+      }
     }
 
     // Map clean URLs to actual file paths in public/icons/
