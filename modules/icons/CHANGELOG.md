@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.5] - 2026-02-03
+
+### Fixed
+- Bug fixes and improvements
+
 ## [0.2.4] - 2025-01-14
 
 ### Fixed

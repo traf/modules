@@ -238,6 +238,11 @@ export async function GET(
       },
     })
   } catch {
-    return new NextResponse('404', { status: 404 })
+    return new NextResponse('404', {
+      status: 404,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
   }
 }
