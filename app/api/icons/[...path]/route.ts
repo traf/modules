@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
 import { resolveColor } from '@modules/icons/src/colors'
+
+export const runtime = 'edge'
 
 function normalizeStandaloneElements(svg: string, iconPath: string): string {
   const [iconSet] = iconPath.split('/')
@@ -193,11 +193,17 @@ export async function GET(
       }
     }
 
-    // Map clean URLs to actual file paths in public/icons/
-    const filePath = join(process.cwd(), 'public/icons', iconPath)
+    const staticUrl = new URL(`/icons/${iconPath}`, request.url)
+    const res = await fetch(staticUrl)
 
-    // Read the SVG file
-    const svgContent = await readFile(filePath, 'utf-8')
+    if (!res.ok) {
+      return new NextResponse('404', {
+        status: 404,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+      })
+    }
+
+    const svgContent = await res.text()
 
     let modifiedSvg = svgContent
 
@@ -230,11 +236,10 @@ export async function GET(
     return new NextResponse(modifiedSvg, {
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=86400, must-revalidate',
+        'Cache-Control': 'public, s-maxage=31536000, stale-while-revalidate=86400',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'X-Icon-Route': 'hit',
       },
     })
   } catch {

@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.6] - 2026-02-06
+
+### Fixed
+- Added in-memory SVG cache and failed URL tracking to prevent redundant fetches and reduce request volume that triggers CDN protection
+
 ## [0.2.5] - 2026-02-03
 
 ### Fixed

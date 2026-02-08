@@ -12,6 +12,9 @@ const SIZE_MAP: Record<IconSize, number> = {
     xl: 40
 };
 
+const svgCache = new Map<string, string>();
+const failedUrls = new Set<string>();
+
 export interface IconProps {
     name: string;
     color?: string;
@@ -55,32 +58,52 @@ export function Icon({
     }, [name, set, style]);
 
     useEffect(() => {
+        const params = new URLSearchParams();
+        if (color !== 'currentColor') {
+            const colorValue = resolveColor(color).replace('#', '');
+            params.set('color', colorValue);
+        }
+        if (stroke) params.set('stroke', stroke);
+
+        const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+
+        if (failedUrls.has(url)) {
+            setError(true);
+            return;
+        }
+
+        const cached = svgCache.get(url);
+        if (cached) {
+            setSvgContent(cached);
+            return;
+        }
+
+        let cancelled = false;
+
         const loadSvg = async () => {
             setError(false);
-
             try {
-                const params = new URLSearchParams();
-                if (color !== 'currentColor') {
-                    const colorValue = resolveColor(color).replace('#', '');
-                    params.set('color', colorValue);
-                }
-                if (stroke) params.set('stroke', stroke);
-
-                const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
                 const response = await fetch(url, { mode: 'cors' });
+                if (cancelled) return;
 
                 if (response.ok) {
                     const svg = await response.text();
+                    svgCache.set(url, svg);
                     setSvgContent(svg);
                 } else {
+                    failedUrls.add(url);
                     setError(true);
                 }
             } catch {
-                setError(true);
+                if (!cancelled) {
+                    failedUrls.add(url);
+                    setError(true);
+                }
             }
         };
 
         loadSvg();
+        return () => { cancelled = true; };
     }, [color, stroke, set, iconKey]);
 
     const processedSvg = useMemo(() => {
