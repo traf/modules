@@ -2,6 +2,11 @@
 
 All notable changes to the Icon module will be documented in this file
 
+## [0.2.7] - 2026-02-08
+
+### Fixed
+- Check SVG cache synchronously during render instead of in useEffect to eliminate flash on cached icons
+
 ## [0.2.6] - 2026-02-06
 
 ### Fixed

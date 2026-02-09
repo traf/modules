@@ -25,6 +25,16 @@ export interface IconProps {
     size?: IconSize | number | string;
 }
 
+function buildUrl(set: string, iconKey: string, color: string, stroke?: string): string {
+    const params = new URLSearchParams();
+    if (color !== 'currentColor') {
+        const colorValue = resolveColor(color).replace('#', '');
+        params.set('color', colorValue);
+    }
+    if (stroke) params.set('stroke', stroke);
+    return `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+}
+
 export function Icon({
     name,
     color = 'currentColor',
@@ -34,9 +44,6 @@ export function Icon({
     className,
     size = 'md'
 }: IconProps) {
-    const [svgContent, setSvgContent] = useState<string | null>(null);
-    const [error, setError] = useState(false);
-
     const iconKey = useMemo(() => {
         let iconName = name.replace('.svg', '');
 
@@ -57,31 +64,33 @@ export function Icon({
         return iconName;
     }, [name, set, style]);
 
-    useEffect(() => {
-        const params = new URLSearchParams();
-        if (color !== 'currentColor') {
-            const colorValue = resolveColor(color).replace('#', '');
-            params.set('color', colorValue);
-        }
-        if (stroke) params.set('stroke', stroke);
+    const url = useMemo(() => buildUrl(set, iconKey, color, stroke), [set, iconKey, color, stroke]);
 
-        const url = `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+    const [svgContent, setSvgContent] = useState<string | null>(() => svgCache.get(url) ?? null);
+    const [error, setError] = useState(() => failedUrls.has(url));
+    const [currentUrl, setCurrentUrl] = useState(url);
 
-        if (failedUrls.has(url)) {
-            setError(true);
-            return;
-        }
-
+    if (currentUrl !== url) {
+        setCurrentUrl(url);
         const cached = svgCache.get(url);
         if (cached) {
             setSvgContent(cached);
-            return;
+            setError(false);
+        } else if (failedUrls.has(url)) {
+            setSvgContent(null);
+            setError(true);
+        } else {
+            setSvgContent(null);
+            setError(false);
         }
+    }
+
+    useEffect(() => {
+        if (svgCache.has(url) || failedUrls.has(url)) return;
 
         let cancelled = false;
 
         const loadSvg = async () => {
-            setError(false);
             try {
                 const response = await fetch(url, { mode: 'cors' });
                 if (cancelled) return;
@@ -104,7 +113,7 @@ export function Icon({
 
         loadSvg();
         return () => { cancelled = true; };
-    }, [color, stroke, set, iconKey]);
+    }, [url]);
 
     const processedSvg = useMemo(() => {
         if (!svgContent) return null;
