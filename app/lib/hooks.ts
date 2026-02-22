@@ -1,4 +1,4 @@
-import { useEffect, useState, RefObject } from 'react';
+import { useEffect, useState, useCallback, RefObject } from 'react';
 
 /**
  * Hook to detect if an element has been scrolled
@@ -24,4 +24,26 @@ export function useScrolled(ref: RefObject<HTMLElement | null>, threshold: numbe
   }, [ref, threshold]);
 
   return isScrolled;
+}
+
+export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
+  const [stored, setStored] = useState<T>(() => {
+    if (typeof window === 'undefined') return initialValue;
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch {
+      return initialValue;
+    }
+  });
+
+  const setValue = useCallback((value: T | ((prev: T) => T)) => {
+    setStored(prev => {
+      const next = value instanceof Function ? value(prev) : value;
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, [key]);
+
+  return [stored, setValue];
 }

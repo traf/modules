@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Icon } from '@modules/icons';
 import { resolveColor } from '@modules/icons/src/colors';
+import { useLocalStorage } from '../lib/hooks';
 import Code from '../components/Code';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
@@ -59,19 +60,19 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
 }
 
 export default function IconsClient() {
-  const [selectedSet, setSelectedSet] = useState<string>('huge');
-  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedSet, setSelectedSet] = useLocalStorage('icons-set', 'huge');
+  const [selectedColor, setSelectedColor] = useLocalStorage('icons-color', '');
   const [validColor, setValidColor] = useState<string>('white');
-  const [selectedStroke, setSelectedStroke] = useState<string>('1.5');
-  const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [selectedSize, setSelectedSize] = useState<string>('lg');
+  const [selectedStroke, setSelectedStroke] = useLocalStorage('icons-stroke', '1.5');
+  const [selectedStyle, setSelectedStyle] = useLocalStorage('icons-style', '');
+  const [selectedSize, setSelectedSize] = useLocalStorage('icons-size', 'lg');
   const [selectedIcon, setSelectedIcon] = useState<string>('home-01');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allIcons, setAllIcons] = useState<Record<string, string[]>>({});
   const [displayCount, setDisplayCount] = useState<number>(ICONS_PER_LOAD);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedIcon, setCopiedIcon] = useState<string>('');
-  const [copyMode, setCopyMode] = useState<string>('name');
+  const [copyMode, setCopyMode] = useLocalStorage('icons-copy', 'name');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const isLoadingMoreRef = useRef<boolean>(false);
