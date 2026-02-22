@@ -27,15 +27,14 @@ export function useScrolled(ref: RefObject<HTMLElement | null>, threshold: numbe
 }
 
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
-  const [stored, setStored] = useState<T>(() => {
-    if (typeof window === 'undefined') return initialValue;
+  const [stored, setStored] = useState<T>(initialValue);
+
+  useEffect(() => {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch {
-      return initialValue;
-    }
-  });
+      if (item) setStored(JSON.parse(item));
+    } catch {}
+  }, [key]);
 
   const setValue = useCallback((value: T | ((prev: T) => T)) => {
     setStored(prev => {
