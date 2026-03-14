@@ -1,2 +1,2 @@
-export { Icon } from './Icon';
+export { Icon, preloadIcons } from './Icon';
 export type { IconProps, IconSet } from './Icon';

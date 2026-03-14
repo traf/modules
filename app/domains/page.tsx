@@ -90,7 +90,7 @@ function DomainsContent() {
         // 3-letter
         'app', 'art', 'bio', 'com', 'day', 'dev', 'fun', 'fyi', 'lol', 'net', 'new', 'one', 'org', 'run', 'wtf', 'xyz', 'zip',
         // 4+ letters
-        'agency', 'black', 'blog', 'cafe', 'cash', 'chat', 'cloud', 'computer', 'cool', 'design', 'digital', 'directory', 'email', 'game', 'games', 'link', 'live', 'money', 'network', 'page', 'pizza', 'shop', 'site', 'space', 'store', 'studio', 'tech', 'tools', 'website', 'wiki', 'works', 'world'
+        'agency', 'black', 'blog', 'cafe', 'cash', 'chat', 'cloud', 'computer', 'cool', 'design', 'digital', 'directory', 'email', 'game', 'games', 'link', 'live', 'money', 'network', 'page', 'pizza', 'shop', 'site', 'space', 'store', 'studio', 'supply', 'systems', 'tech', 'tools', 'website', 'wiki', 'works', 'world'
       ];
       const commonDomains: DomainResult[] = commonTLDs.map(tld => ({
         domain: `${baseName.toLowerCase()}.${tld}`,

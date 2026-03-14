@@ -14,6 +14,38 @@ const SIZE_MAP: Record<IconSize, number> = {
 
 const svgCache = new Map<string, string>();
 const failedUrls = new Set<string>();
+const LS_PREFIX = 'modul-es-icon:';
+const LS_MAX = 200;
+
+function writeToStorage(url: string, svg: string) {
+    try {
+        const keys: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k?.startsWith(LS_PREFIX) && k !== LS_PREFIX + url) keys.push(k);
+        }
+        if (keys.length >= LS_MAX) {
+            for (let i = 0; i <= keys.length - LS_MAX; i++) {
+                localStorage.removeItem(keys[i]);
+            }
+        }
+        localStorage.setItem(LS_PREFIX + url, svg);
+    } catch {}
+}
+
+function hydrateFromStorage() {
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key?.startsWith(LS_PREFIX)) {
+                const svg = localStorage.getItem(key);
+                if (svg) svgCache.set(key.slice(LS_PREFIX.length), svg);
+            }
+        }
+    } catch {}
+}
+
+if (typeof window !== 'undefined') hydrateFromStorage();
 
 export interface IconProps {
     name: string;
@@ -33,6 +65,22 @@ function buildUrl(set: string, iconKey: string, color: string, stroke?: string):
     }
     if (stroke) params.set('stroke', stroke);
     return `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
+}
+
+export async function preloadIcons(icons: { name: string; set?: string; color?: string; stroke?: string }[]) {
+    await Promise.all(icons.map(async ({ name, set = 'huge', color = 'currentColor', stroke }) => {
+        const iconKey = name.replace('.svg', '');
+        const url = buildUrl(set, iconKey, color, stroke);
+        if (svgCache.has(url) || failedUrls.has(url)) return;
+        try {
+            const res = await fetch(url, { mode: 'cors' });
+            if (res.ok) {
+                const svg = await res.text();
+                svgCache.set(url, svg);
+                writeToStorage(url, svg);
+            }
+        } catch {}
+    }));
 }
 
 export function Icon({
@@ -98,6 +146,7 @@ export function Icon({
                 if (response.ok) {
                     const svg = await response.text();
                     svgCache.set(url, svg);
+                    writeToStorage(url, svg);
                     setSvgContent(svg);
                 } else {
                     failedUrls.add(url);
