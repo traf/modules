@@ -4,12 +4,10 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Icon } from '../components/Icon';
 import { resolveColor } from '../lib/colors';
 import { useLocalStorage, useVisible } from '../lib/hooks';
-import Code from '../components/Code';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
 import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
-import Badge from '../components/Badge';
 import PageContent from '../components/PageContent';
 import PageSidebar from '../components/PageSidebar';
 import PageLayout from '../components/PageLayout';
@@ -80,7 +78,6 @@ export default function IconsClient() {
   const [selectedStroke, setSelectedStroke] = useLocalStorage('icons-stroke', '1.5');
   const [selectedStyle, setSelectedStyle] = useLocalStorage('icons-style', '');
   const [selectedSize, setSelectedSize] = useLocalStorage('icons-size', 'lg');
-  const [selectedIcon, setSelectedIcon] = useState<string>('home-01');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [allIcons, setAllIcons] = useState<Record<string, string[]>>({});
   const [displayCount, setDisplayCount] = useState<number>(ICONS_PER_LOAD);
@@ -92,8 +89,6 @@ export default function IconsClient() {
   const isLoadingMoreRef = useRef<boolean>(false);
 
   const handleIconClick = async (iconName: string) => {
-    setSelectedIcon(iconName);
-
     if (copyMode === 'name') {
       try {
         await navigator.clipboard.writeText(iconName);
@@ -262,27 +257,7 @@ export default function IconsClient() {
 
   return (
     <PageLayout>
-      <PageSidebar
-        size="lg"
-        footer={
-          <>
-            <Code title="Usage">
-              {buildIconUrl(selectedSet, selectedIcon, validColor, selectedStroke, selectedStyle, selectedSize)}
-            </Code>
-
-            <div className="flex flex-col gap-5">
-              <p className="text-white">Params</p>
-              <div className="flex gap-2">
-                <Badge className="flex-1 border">Set</Badge>
-                <Badge className="flex-1 border">Color</Badge>
-                <Badge className="flex-1 border">Size</Badge>
-                <Badge className="flex-1 border">Style</Badge>
-                <Badge className="flex-1 border">Stroke</Badge>
-              </div>
-            </div>
-          </>
-        }
-      >
+      <PageSidebar size="lg">
         <Input
           ref={searchInputRef}
           label="Search"
