@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { resolveColor } from '@modules/icons/src/colors'
+import { resolveColor } from '@/app/lib/colors'
 
 export const runtime = 'edge'
 

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Input from '../components/Input';
-import { Icon } from '@modules/icons';
+import { Icon } from '../components/Icon';
 import Tabs from '../components/Tabs';
 import Badge from '../components/Badge';
 import Button from '../components/Button';

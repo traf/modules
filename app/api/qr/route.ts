@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import QRCode from 'qrcode'
-import { resolveColor } from '@modules/icons/src/colors'
+import { resolveColor } from '@/app/lib/colors'
 
 export async function OPTIONS() {
   return new NextResponse(null, {

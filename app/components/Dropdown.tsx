@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Icon } from '@modules/icons';
+import { Icon } from './Icon';
 
 interface DropdownItem {
   id: string;

@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import Button from './Button';
-import { Icon } from '@modules/icons';
+import { Icon } from './Icon';
 
 interface DetailSidebarProps {
   isOpen: boolean;

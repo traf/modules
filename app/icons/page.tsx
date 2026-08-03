@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Icon } from '@modules/icons';
-import { resolveColor } from '@modules/icons/src/colors';
+import { Icon } from '../components/Icon';
+import { resolveColor } from '../lib/colors';
 import { useLocalStorage, useVisible } from '../lib/hooks';
 import Code from '../components/Code';
 import Input from '../components/Input';
@@ -23,6 +23,14 @@ const iconSets = {
 };
 
 const ICONS_PER_LOAD = 80;
+
+function buildIconUrl(set: string, name: string, color: string, stroke: string, style: string, size: string, origin: string = 'https://modul.es') {
+  const iconName = style && (set === 'phosphor' || (set === 'huge' && style === 'sharp')) ? `${name}.${style}` : name;
+  const params = new URLSearchParams({ color });
+  if (set !== 'phosphor' && set !== 'pixelart') params.set('stroke', stroke);
+  params.set('size', size);
+  return `${origin}/api/icons/${set}/${iconName}.svg?${params}`;
+}
 
 function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedStyle, selectedSize, copiedIcon, copyMode, onClick }: {
   iconName: string;
@@ -138,19 +146,9 @@ export default function IconsClient() {
     } else if (copyMode === 'image') {
       try {
         const urlColor = validColor === 'white' ? 'black' : validColor;
-        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://modul.es';
-        let url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.svg?color=${encodeURIComponent(urlColor)}`;
-        if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
-          url += `&stroke=${encodeURIComponent(selectedStroke)}`;
-        }
-        if (selectedSet === 'phosphor' && selectedStyle) {
-          url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.${selectedStyle}.svg?color=${encodeURIComponent(urlColor)}`;
-        }
-        if (selectedSet === 'huge' && selectedStyle === 'sharp') {
-          url = `${baseUrl}/api/icons/${selectedSet}/${iconName}.sharp.svg?color=${encodeURIComponent(urlColor)}&stroke=${encodeURIComponent(selectedStroke)}`;
-        }
-        url += `&size=${selectedSize}`;
-        
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://modul.es';
+        const url = buildIconUrl(selectedSet, iconName, urlColor, selectedStroke, selectedStyle, selectedSize, origin);
+
         await navigator.clipboard.writeText(url);
         setCopiedIcon(iconName);
         setTimeout(() => setCopiedIcon(''), 1000);
@@ -268,15 +266,12 @@ export default function IconsClient() {
         size="lg"
         footer={
           <>
-            <Code type="terminal" title="Install">{`npm install @modul-es/icons`}</Code>
             <Code title="Usage">
-              {`import { Icon } from '@modul-es/icons';
-
-<Icon set="${selectedSet}" name="${selectedIcon}" color="${validColor}"${selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? ` stroke="${selectedStroke}"` : ''}${selectedSet === 'phosphor' && selectedStyle ? ` style="${selectedStyle}"` : ''}${selectedSize !== 'md' ? ` size="${selectedSize}"` : ''} />`}
+              {buildIconUrl(selectedSet, selectedIcon, validColor, selectedStroke, selectedStyle, selectedSize)}
             </Code>
 
             <div className="flex flex-col gap-5">
-              <p className="text-white">Props</p>
+              <p className="text-white">Params</p>
               <div className="flex gap-2">
                 <Badge className="flex-1 border">Set</Badge>
                 <Badge className="flex-1 border">Color</Badge>

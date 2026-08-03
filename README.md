@@ -2,7 +2,7 @@
 Components && utilities
 
 - `/app/` contains website code
-- `/modules/` contains published components & utilities
+- `/modules/` contains shared utilities
 
 ## Links
 - [Icons](https://modul.es/icons)

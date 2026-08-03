@@ -13,7 +13,7 @@ import DividedList from '@/app/components/DividedList';
 import Tabs from '@/app/components/Tabs';
 import FormField from '@/app/components/FormField';
 import Copy from '@/app/components/Copy';
-import { Icon } from '@modules/icons';
+import { Icon } from '../components/Icon';
 import { saveSplitHistory, getAllSplitHistory, deleteSplitHistory, SplitHistory } from '@/app/lib/storage';
 
 interface SplitImage {

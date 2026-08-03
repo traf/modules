@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Icon } from '@modules/icons';
+import { Icon } from './Icon';
 
 interface PageSidebarProps {
   children: ReactNode;

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "npm run build:modules && next build",
-    "build:modules": "cd modules/crypto && npm run build && cd ../icons && npm run build",
+    "build:modules": "cd modules/crypto && npm run build",
     "start": "next start",
     "lint": "eslint"
   },

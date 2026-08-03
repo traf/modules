@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { resolveColor } from './colors'
+import { resolveColor } from '../lib/colors'
 
 export type IconSet = 'huge' | 'pixelart' | 'phosphor' | 'lucide';
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -64,23 +64,7 @@ function buildUrl(set: string, iconKey: string, color: string, stroke?: string):
         params.set('color', colorValue);
     }
     if (stroke) params.set('stroke', stroke);
-    return `https://modul.es/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
-}
-
-export async function preloadIcons(icons: { name: string; set?: string; color?: string; stroke?: string }[]) {
-    await Promise.all(icons.map(async ({ name, set = 'huge', color = 'currentColor', stroke }) => {
-        const iconKey = name.replace('.svg', '');
-        const url = buildUrl(set, iconKey, color, stroke);
-        if (svgCache.has(url) || failedUrls.has(url)) return;
-        try {
-            const res = await fetch(url, { mode: 'cors' });
-            if (res.ok) {
-                const svg = await res.text();
-                svgCache.set(url, svg);
-                writeToStorage(url, svg);
-            }
-        } catch {}
-    }));
+    return `/api/icons/${set}/${iconKey}.svg${params.toString() ? `?${params.toString()}` : ''}`;
 }
 
 export function Icon({
@@ -140,7 +124,7 @@ export function Icon({
 
         const loadSvg = async () => {
             try {
-                const response = await fetch(url, { mode: 'cors' });
+                const response = await fetch(url);
                 if (cancelled) return;
 
                 if (response.ok) {

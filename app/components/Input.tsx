@@ -1,5 +1,5 @@
 import { forwardRef, useRef, useImperativeHandle } from 'react';
-import { Icon } from '@modules/icons';
+import { Icon } from './Icon';
 
 interface InputProps {
   type?: string;

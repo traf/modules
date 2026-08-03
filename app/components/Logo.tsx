@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Icon } from '@/modules/icons/src/Icon';
+import { Icon } from './Icon';
 import Link from 'next/link';
 
 const icons = [
