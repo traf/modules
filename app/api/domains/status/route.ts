@@ -12,46 +12,91 @@ export async function OPTIONS() {
   });
 }
 
+const MAX_DOMAINS = 25;
+const RATE_LIMIT = 100;
+// Upstream latency is usually ~1s but occasionally stalls past 10s, which would
+// otherwise take the whole batch down with it
+const UPSTREAM_TIMEOUT = 6000;
+const CACHE_HEADER = 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800';
+
+export const maxDuration = 20;
+
+const isValidDomain = (domain: string) => domain.length <= 253 && /^[a-z0-9.-]+$/i.test(domain);
+
+async function fetchStatus(domain: string, apiKey: string) {
+  const url = `https://api.fastly.com/domain-management/v1/tools/status?domain=${encodeURIComponent(domain)}`;
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT),
+    headers: {
+      'Fastly-Key': apiKey,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Fastly API error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const clientIP = getClientIP(request);
-    const rateLimit = checkRateLimit(clientIP, {
-      windowMs: 60000, // 1 minute
-      maxRequests: 100 // Higher limit since it's called in parallel
-    });
-
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { 
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': '100',
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
-            'Retry-After': String(Math.ceil((rateLimit.resetTime - Date.now()) / 1000))
-          }
-        }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
-    const domain = searchParams.get('domain');
-    const apiKey = process.env.FASTLY_API_TOKEN;
+    const single = searchParams.get('domain');
+    const batch = searchParams.get('domains');
 
-    if (!domain || domain.trim().length === 0) {
+    const domains = (batch ?? single ?? '')
+      .split(',')
+      .map(domain => domain.trim())
+      .filter(Boolean);
+
+    if (domains.length === 0) {
       return NextResponse.json(
         { error: 'Domain parameter is required' },
         { status: 400 }
       );
     }
 
-    if (domain.length > 253 || !/^[a-z0-9.-]+$/i.test(domain)) {
+    if (domains.length > MAX_DOMAINS || !domains.every(isValidDomain)) {
       return NextResponse.json(
         { error: 'Invalid domain format' },
         { status: 400 }
       );
     }
+
+    const clientIP = getClientIP(request);
+    const rateLimit = checkRateLimit(clientIP, {
+      windowMs: 60000,
+      maxRequests: RATE_LIMIT,
+      cost: domains.length
+    });
+
+    const headers: Record<string, string> = {
+      'Cache-Control': CACHE_HEADER,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'X-RateLimit-Limit': String(RATE_LIMIT),
+      'X-RateLimit-Remaining': String(rateLimit.remaining),
+      'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString()
+    };
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            ...headers,
+            'Cache-Control': 'no-store',
+            'Retry-After': String(Math.ceil((rateLimit.resetTime - Date.now()) / 1000))
+          }
+        }
+      );
+    }
+
+    const apiKey = process.env.FASTLY_API_TOKEN;
 
     if (!apiKey) {
       return NextResponse.json(
@@ -60,32 +105,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const fastlyUrl = `https://api.fastly.com/domain-management/v1/tools/status?domain=${encodeURIComponent(domain)}`;
+    let failed = false;
 
-    const response = await fetch(fastlyUrl, {
-      headers: {
-        'Fastly-Key': apiKey,
-        'Accept': 'application/json'
+    const entries = await Promise.all(domains.map(async domain => {
+      try {
+        return [domain, await fetchStatus(domain, apiKey)] as const;
+      } catch (error) {
+        console.error(`Domain status check failed for ${domain}:`, error);
+        failed = true;
+        return [domain, { domain, status: 'unknown', zone: domain.split('.').pop() ?? '' }] as const;
       }
-    });
+    }));
 
-    if (!response.ok) {
-      throw new Error(`Domainr API error: ${response.status}`);
+    // Don't let a transient upstream failure sit in the CDN cache for a day
+    if (failed) headers['Cache-Control'] = 'public, max-age=60, s-maxage=60';
+
+    if (!batch) {
+      return NextResponse.json(entries[0][1], { headers });
     }
 
-    const data = await response.json();
-
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, max-age=300, must-revalidate',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'X-RateLimit-Limit': '100',
-        'X-RateLimit-Remaining': String(rateLimit.remaining),
-        'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString()
-      },
-    });
+    return NextResponse.json({ statuses: Object.fromEntries(entries) }, { headers });
   } catch (error) {
     console.error('Domain status check failed:', error);
     return NextResponse.json(

@@ -26,6 +26,30 @@ export function useScrolled(ref: RefObject<HTMLElement | null>, threshold: numbe
   return isScrolled;
 }
 
+/**
+ * Hook to detect when an element first enters the viewport
+ * @param ref - Ref to the observed element
+ * @param margin - Distance outside the viewport to start loading (default: 200px)
+ * @returns Boolean that stays true once the element has been seen
+ */
+export function useVisible(ref: RefObject<HTMLElement | null>, margin: string = '200px'): boolean {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || isVisible) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true);
+    }, { rootMargin: margin });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, margin, isVisible]);
+
+  return isVisible;
+}
+
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
   const [stored, setStored] = useState<T>(initialValue);
 

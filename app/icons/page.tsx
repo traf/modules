@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Icon } from '@modules/icons';
 import { resolveColor } from '@modules/icons/src/colors';
-import { useLocalStorage } from '../lib/hooks';
+import { useLocalStorage, useVisible } from '../lib/hooks';
 import Code from '../components/Code';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
@@ -35,20 +35,26 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
   copyMode: string;
   onClick: (iconName: string) => void;
 }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const isVisible = useVisible(ref);
+
   return (
     <button
+      ref={ref}
       className="relative flex items-center justify-center cursor-pointer hover:bg-neutral-900 aspect-square border-r border-b border-neutral-800"
       onClick={() => onClick(iconName)}
     >
-      <Icon
-        name={iconName}
-        set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
-        color={validColor}
-        stroke={selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? selectedStroke : undefined}
-        style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
-        size={selectedSize as 'xs' | 'sm' | 'md' | 'lg' | 'xl'}
-        key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}-${selectedSize}`}
-      />
+      {isVisible && (
+        <Icon
+          name={iconName}
+          set={selectedSet as 'huge' | 'phosphor' | 'lucide' | 'pixelart'}
+          color={validColor}
+          stroke={selectedSet !== 'phosphor' && selectedSet !== 'pixelart' ? selectedStroke : undefined}
+          style={selectedSet === 'phosphor' && selectedStyle ? selectedStyle as 'thin' | 'light' | 'bold' | 'fill' | 'duotone' : undefined}
+          size={selectedSize as 'xs' | 'sm' | 'md' | 'lg' | 'xl'}
+          key={`${selectedSet}-${iconName}-${validColor}-${selectedStroke}-${selectedStyle}-${selectedSize}`}
+        />
+      )}
 
       {copiedIcon === iconName && (
         <p className="absolute bottom-0 text-center p-2.5 !text-xs font">

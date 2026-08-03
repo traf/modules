@@ -18,6 +18,8 @@ setInterval(() => {
 export interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
+  // Requests that fan out to multiple upstream calls should cost more than one
+  cost?: number;
 }
 
 export interface RateLimitResult {
@@ -28,23 +30,24 @@ export interface RateLimitResult {
 
 export function checkRateLimit(identifier: string, config: RateLimitConfig): RateLimitResult {
   const now = Date.now();
+  const cost = config.cost ?? 1;
   const entry = rateLimitStore.get(identifier);
 
   if (!entry || now >= entry.resetTime) {
     const newEntry: RateLimitEntry = {
-      count: 1,
+      count: cost,
       resetTime: now + config.windowMs
     };
     rateLimitStore.set(identifier, newEntry);
 
     return {
       allowed: true,
-      remaining: config.maxRequests - 1,
+      remaining: Math.max(config.maxRequests - cost, 0),
       resetTime: newEntry.resetTime
     };
   }
 
-  if (entry.count >= config.maxRequests) {
+  if (entry.count + cost > config.maxRequests) {
     return {
       allowed: false,
       remaining: 0,
@@ -52,7 +55,7 @@ export function checkRateLimit(identifier: string, config: RateLimitConfig): Rat
     };
   }
 
-  entry.count++;
+  entry.count += cost;
   rateLimitStore.set(identifier, entry);
 
   return {

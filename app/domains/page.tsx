@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Input from '../components/Input';
 import { Icon } from '@modules/icons';
 import Tabs from '../components/Tabs';
@@ -15,6 +15,8 @@ import PageLayout from '../components/PageLayout';
 import Section from '../components/Section';
 import DividedList from '../components/DividedList';
 import { formatPrice, formatDate } from '../lib/utils';
+
+const STATUS_BATCH_SIZE = 25;
 
 interface DomainResult {
   domain: string;
@@ -53,7 +55,6 @@ interface WhoisData {
 }
 
 function DomainsContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState<string>(searchParams.get('q') || '');
   const [results, setResults] = useState<DomainResult[]>([]);
@@ -177,29 +178,35 @@ function DomainsContent() {
       setResults(uniqueDomains);
       setIsSearching(false);
 
-      // Fetch statuses progressively in background
-      uniqueDomains.forEach(async (result: DomainResult) => {
-        try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 10000);
+      // Fetch statuses progressively in background, batched to keep invocations low
+      for (let i = 0; i < uniqueDomains.length; i += STATUS_BATCH_SIZE) {
+        const batch = uniqueDomains.slice(i, i + STATUS_BATCH_SIZE);
 
-          const statusRes = await fetch(`/api/domains/status?domain=${encodeURIComponent(result.domain)}`, {
-            signal: controller.signal
-          });
-          clearTimeout(timeout);
+        (async () => {
+          try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
 
-          if (statusRes.ok) {
-            const statusData = await statusRes.json();
-            setStatuses(prev => ({ ...prev, [result.domain]: statusData }));
-          } else {
-            // API returned error, set fallback status
-            setStatuses(prev => ({ ...prev, [result.domain]: { domain: result.domain, status: 'unknown', zone: result.zone } }));
+            const statusRes = await fetch(`/api/domains/status?domains=${encodeURIComponent(batch.map(d => d.domain).join(','))}`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeout);
+
+            if (statusRes.ok) {
+              const { statuses: batchStatuses } = await statusRes.json();
+              setStatuses(prev => ({ ...prev, ...batchStatuses }));
+              return;
+            }
+          } catch {
+            // Fall through to fallback statuses
           }
-        } catch {
-          // Network error or timeout, set fallback status
-          setStatuses(prev => ({ ...prev, [result.domain]: { domain: result.domain, status: 'unknown', zone: result.zone } }));
-        }
-      });
+
+          setStatuses(prev => ({
+            ...prev,
+            ...Object.fromEntries(batch.map(d => [d.domain, { domain: d.domain, status: 'unknown', zone: d.zone }]))
+          }));
+        })();
+      }
     } catch (error) {
       console.error('Domain search failed:', error);
       setResults([]);
@@ -237,20 +244,20 @@ function DomainsContent() {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
     if (!query.trim()) {
-      router.push('/domains');
+      window.history.replaceState(null, '', '/domains');
       setResults([]);
       setStatuses({});
       setSelectedDomain(null);
       return;
     }
 
-    router.push(`/domains?q=${encodeURIComponent(query)}`);
+    window.history.replaceState(null, '', `/domains?q=${encodeURIComponent(query)}`);
     debounceTimerRef.current = setTimeout(handleSearch, 300);
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
-  }, [query, handleSearch, router]);
+  }, [query, handleSearch]);
 
   const handleDomainClick = async (domain: DomainResult) => {
     setSelectedDomain(domain);
