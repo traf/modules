@@ -64,7 +64,7 @@ function IconBox({ iconName, selectedSet, validColor, selectedStroke, selectedSt
 
       {copiedIcon === iconName && (
         <p className="absolute bottom-0 text-center p-2.5 !text-xs font">
-          Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : copyMode === 'image' ? 'URL' : 'component'}
+          Copied {copyMode === 'name' ? 'name' : copyMode === 'svg' ? 'SVG' : 'URL'}
         </p>
       )}
     </button>
@@ -84,6 +84,9 @@ export default function IconsClient() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copiedIcon, setCopiedIcon] = useState<string>('');
   const [copyMode, setCopyMode] = useLocalStorage('icons-copy', 'name');
+  useEffect(() => {
+    if (copyMode === 'component') setCopyMode('name');
+  }, [copyMode, setCopyMode]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const isLoadingMoreRef = useRef<boolean>(false);
@@ -145,25 +148,6 @@ export default function IconsClient() {
         const url = buildIconUrl(selectedSet, iconName, urlColor, selectedStroke, selectedStyle, selectedSize, origin);
 
         await navigator.clipboard.writeText(url);
-        setCopiedIcon(iconName);
-        setTimeout(() => setCopiedIcon(''), 1000);
-      } catch {
-        // Silently fail
-      }
-    } else if (copyMode === 'component') {
-      try {
-        let componentCode = `<Icon set="${selectedSet}" name="${iconName}" color="${validColor}"`;
-        if (selectedSet !== 'phosphor' && selectedSet !== 'pixelart') {
-          componentCode += ` stroke="${selectedStroke}"`;
-        }
-        if (selectedSet === 'phosphor' && selectedStyle) {
-          componentCode += ` style="${selectedStyle}"`;
-        }
-        if (selectedSize !== 'md') {
-          componentCode += ` size="${selectedSize}"`;
-        }
-        componentCode += ` />`;
-        await navigator.clipboard.writeText(componentCode);
         setCopiedIcon(iconName);
         setTimeout(() => setCopiedIcon(''), 1000);
       } catch {
@@ -343,8 +327,7 @@ export default function IconsClient() {
             items={[
               { id: 'name', label: 'Name' },
               { id: 'svg', label: 'SVG' },
-              { id: 'image', label: 'URL' },
-              { id: 'component', label: 'Component' }
+              { id: 'image', label: 'URL' }
             ]}
             activeTab={copyMode}
             onTabChange={setCopyMode}
